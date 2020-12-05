@@ -12,6 +12,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.minlauncher.min.adapters.AppListAdapter
 import com.minlauncher.min.R
 import com.minlauncher.min.models.AppListItem
+import com.viethoa.RecyclerViewFastScroller
+import com.viethoa.models.AlphabetItem
 
 class AppList : Fragment() {
 
@@ -28,11 +30,13 @@ class AppList : Fragment() {
         intent.addCategory(Intent.CATEGORY_LAUNCHER)
         val allApps = packageManager?.queryIntentActivities(intent, 0)
 
-        allApps?.sortBy { resolveInfo -> resolveInfo.loadLabel(packageManager).toString() }
+        allApps?.sortBy { resolveInfo -> resolveInfo.loadLabel(packageManager).toString().toUpperCase() }
 
         val items = mutableListOf<AppListItem>()
+        val alphabet = mutableListOf<AlphabetItem>()
+
         var headingLetter: String? = null
-        allApps?.forEach { resolveInfo ->
+        allApps?.forEachIndexed { i, resolveInfo ->
             val label = resolveInfo.loadLabel(packageManager).toString()
             val icon = resolveInfo.loadIcon(packageManager)
 
@@ -41,15 +45,22 @@ class AppList : Fragment() {
             if (headingLetter != labelFirstLetter) {
                 headingLetter = labelFirstLetter;
                 items.add(AppListItem(labelFirstLetter, ShapeDrawable(), true))
+                alphabet.add(AlphabetItem(i, labelFirstLetter, false))
             }
 
             val appListItem = AppListItem(label, icon, false)
             items.add(appListItem)
         }
 
+
+
         val recyclerView = view.findViewById<RecyclerView>(R.id.appList)
         recyclerView.layoutManager = LinearLayoutManager(context)
         recyclerView.adapter = items?.let { AppListAdapter(items) }
+
+        val fastScroller = view.findViewById<RecyclerViewFastScroller>(R.id.fastScroller)
+        fastScroller.setUpAlphabet(alphabet)
+        fastScroller.setRecyclerView(recyclerView)
 
         return view
     }

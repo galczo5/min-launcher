@@ -8,8 +8,9 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.minlauncher.min.R
 import com.minlauncher.min.models.AppListItem
+import com.viethoa.RecyclerViewFastScroller
 
-class AppListAdapter(val apps: List<AppListItem>) : RecyclerView.Adapter<AppListAdapter.ViewHolder>() {
+class AppListAdapter(val apps: List<AppListItem>) : RecyclerViewFastScroller.BubbleTextGetter, RecyclerView.Adapter<AppListAdapter.ViewHolder>() {
 
     inner class ViewHolder(view: View, val viewType: Int) : RecyclerView.ViewHolder(view) {
         var textView: TextView? = null
@@ -28,11 +29,7 @@ class AppListAdapter(val apps: List<AppListItem>) : RecyclerView.Adapter<AppList
 
     override fun getItemViewType(position: Int): Int {
         val item = apps[position]
-        return if (item.separator) {
-            1;
-        } else {
-            0;
-        }
+        return if (item.separator) { 1 } else { 0 }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -61,5 +58,16 @@ class AppListAdapter(val apps: List<AppListItem>) : RecyclerView.Adapter<AppList
         } else {
             holder.separatorLabelView?.text = item.label
         }
+    }
+
+    override fun getTextToShowInBubble(pos: Int): String? {
+        if (pos < 0 || pos >= apps.size)
+            return null;
+
+        val name = apps[pos].label
+        if (name == null || name.length < 1)
+            return null;
+
+        return name.substring(0, 1);
     }
 }

@@ -32,6 +32,10 @@ android {
     }
 }
 
+repositories {
+    maven { url 'https://oss.sonatype.org/content/groups/public' }
+}
+
 dependencies {
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
@@ -44,4 +48,5 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
     implementation "androidx.viewpager2:viewpager2:1.0.0"
+    implementation 'com.github.viethoa:fastscroller:1.2.0'
 }
