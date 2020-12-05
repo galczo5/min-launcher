@@ -1,18 +1,12 @@
 package com.minlauncher.min
 
-import android.content.Intent
-import android.content.pm.PackageManager
-import android.content.pm.ResolveInfo
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.view.Window
-import android.view.WindowInsetsController
 import android.view.WindowManager
-import androidx.viewpager.widget.ViewPager
 import androidx.viewpager2.widget.ViewPager2
-import com.google.android.material.bottomappbar.BottomAppBar
+import com.minlauncher.min.adapters.MainActivityScreensAdapter
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
