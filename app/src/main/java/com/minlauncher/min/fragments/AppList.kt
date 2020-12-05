@@ -75,12 +75,14 @@ class AppList : Fragment() {
             val label = resolveInfo.loadLabel(packageManager).toString()
             val icon = resolveInfo.loadIcon(packageManager)
 
-            val labelFirstLetter = label[0].toUpperCase().toString();
+            val labelFirstLetter = label[0].toUpperCase().toString()
 
             if (!labelFirstLetter.isDigitsOnly() && headingLetter != labelFirstLetter) {
-                headingLetter = labelFirstLetter;
+                headingLetter = labelFirstLetter
                 items.add(AppListItem(labelFirstLetter, null, ShapeDrawable(), true))
                 alphabet.add(AlphabetItem(i, labelFirstLetter, false))
+            } else if (labelFirstLetter.isDigitsOnly() && headingLetter != labelFirstLetter) {
+                items.add(AppListItem("0-9", null, ShapeDrawable(), true))
             }
 
             val packageName = resolveInfo.activityInfo.packageName
