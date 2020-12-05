@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import com.minlauncher.min.Constants
 import com.minlauncher.min.R
 import com.minlauncher.min.adapters.HomeAppListAdapter
 import com.minlauncher.min.models.HomeListItem
@@ -52,8 +53,8 @@ class Home : Fragment() {
         loadHomeAppsFromSharedPreferences()
         setRecyclerView(view)
 
-
-        activity?.registerReceiver(homeListChangedReceiver, IntentFilter("REFRESH_HOME_SCREEN"))
+        val intentFilter = IntentFilter(Constants.REFRESH_HOME_INTENT.value)
+        activity?.registerReceiver(homeListChangedReceiver, intentFilter)
 
         return view
     }
@@ -67,8 +68,11 @@ class Home : Fragment() {
     }
 
     private fun loadHomeAppsFromSharedPreferences() {
-        val appsSerialized = activity?.getSharedPreferences("HOME", Context.MODE_PRIVATE)
-            ?.getString("HOME_APPS", "[]")
+        val preferencesName = Constants.SHARED_PREFERENCES_NAME.value
+        val preferencesKey = Constants.SHARED_PREFERENCES_HOME_APPS_KEY.value
+
+        val appsSerialized = activity?.getSharedPreferences(preferencesName, Context.MODE_PRIVATE)
+            ?.getString(preferencesKey, "[]")
 
         val gson = Gson()
         val type = TypeToken.getParameterized(List::class.java, HomeListItem::class.java).type

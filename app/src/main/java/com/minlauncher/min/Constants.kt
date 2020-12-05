@@ -1,0 +1,7 @@
+package com.minlauncher.min
+
+enum class Constants(val value: String) {
+    SHARED_PREFERENCES_NAME("HOME"),
+    SHARED_PREFERENCES_HOME_APPS_KEY("SHARED_PREFERENCES_HOME_APPS_KEY"),
+    REFRESH_HOME_INTENT("REFRESH_HOME_INTENT")
+}
