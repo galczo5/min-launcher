@@ -44,11 +44,12 @@ class AppList : Fragment() {
 
             if (headingLetter != labelFirstLetter) {
                 headingLetter = labelFirstLetter;
-                items.add(AppListItem(labelFirstLetter, ShapeDrawable(), true))
+                items.add(AppListItem(labelFirstLetter, null, ShapeDrawable(), true))
                 alphabet.add(AlphabetItem(i, labelFirstLetter, false))
             }
 
-            val appListItem = AppListItem(label, icon, false)
+            val packageName = resolveInfo.activityInfo.packageName
+            val appListItem = AppListItem(label, packageName, icon, false)
             items.add(appListItem)
         }
 

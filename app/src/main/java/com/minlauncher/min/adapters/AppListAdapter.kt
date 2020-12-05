@@ -12,7 +12,7 @@ import com.viethoa.RecyclerViewFastScroller
 
 class AppListAdapter(val apps: List<AppListItem>) : RecyclerViewFastScroller.BubbleTextGetter, RecyclerView.Adapter<AppListAdapter.ViewHolder>() {
 
-    inner class ViewHolder(view: View, val viewType: Int) : RecyclerView.ViewHolder(view) {
+    inner class ViewHolder(val view: View, val viewType: Int) : RecyclerView.ViewHolder(view) {
         var textView: TextView? = null
         var imageView: ImageView? = null
         var separatorLabelView: TextView? = null
@@ -55,6 +55,14 @@ class AppListAdapter(val apps: List<AppListItem>) : RecyclerViewFastScroller.Bub
         if (holder.viewType == 0) {
             holder.textView?.text = item.label
             holder.imageView?.setImageDrawable(item.icon)
+
+            holder.view.setOnClickListener{ v ->
+                item.packageName?.let {
+                    val intent = v.context.packageManager.getLaunchIntentForPackage(it)
+                    v.context.startActivity(intent)
+                }
+            }
+
         } else {
             holder.separatorLabelView?.text = item.label
         }
