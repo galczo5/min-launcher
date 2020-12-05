@@ -8,6 +8,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.minlauncher.min.R
 import com.minlauncher.min.models.AppListItem
+import com.minlauncher.min.models.ContextMenuGroup
 import com.viethoa.RecyclerViewFastScroller
 
 class AppListAdapter(val apps: List<AppListItem>) : RecyclerViewFastScroller.BubbleTextGetter, RecyclerView.Adapter<AppListAdapter.ViewHolder>() {
@@ -33,17 +34,16 @@ class AppListAdapter(val apps: List<AppListItem>) : RecyclerViewFastScroller.Bub
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        if (viewType == 0) {
-            val view = LayoutInflater.from(parent.context)
-                    .inflate(R.layout.app_list_item, parent, false)
-
-            return ViewHolder(view, viewType)
+        var resource = if (viewType == 0) {
+            R.layout.app_list_item
         } else {
-            val view = LayoutInflater.from(parent.context)
-                    .inflate(R.layout.app_list_separator, parent, false)
-
-            return ViewHolder(view, viewType)
+            R.layout.app_list_separator
         }
+
+        val view = LayoutInflater.from(parent.context)
+            .inflate(resource, parent, false)
+
+        return ViewHolder(view, viewType)
     }
 
     override fun getItemCount(): Int {
@@ -63,6 +63,10 @@ class AppListAdapter(val apps: List<AppListItem>) : RecyclerViewFastScroller.Bub
                 }
             }
 
+            holder.view.setOnCreateContextMenuListener { menu, v, menuInfo ->
+                menu.add(ContextMenuGroup.ADD_TO_HOME.value, position, 0, "Add to home screen")
+            }
+
         } else {
             holder.separatorLabelView?.text = item.label
         }
@@ -78,4 +82,5 @@ class AppListAdapter(val apps: List<AppListItem>) : RecyclerViewFastScroller.Bub
 
         return name.substring(0, 1);
     }
+
 }
