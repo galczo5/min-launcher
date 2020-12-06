@@ -3,8 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".fragments.AppList"
-    android:background="@color/black">
+    tools:context=".fragments.AppList">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -12,17 +11,38 @@
         android:layout_margin="20dp"
         android:orientation="vertical">
 
-        <TextView
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Apps"
-            android:layout_marginBottom="20dp"
-            android:textAppearance="@style/TextAppearance.AppCompat.Large"
-            android:textColor="@color/white" />
+            android:orientation="horizontal"
+            android:layout_marginBottom="20dp">
+
+            <TextView
+                android:layout_weight="1"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="@string/appListHeader"
+                android:textAppearance="@style/TextAppearance.AppCompat.Large" />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:scaleX="0.5"
+                android:scaleY="0.5"
+                android:src="@drawable/ic_baseline_wb_sunny_24"/>
+
+            <Switch
+                android:id="@+id/darkModeSwitch"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent" />
+
+        </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="fill_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
             android:orientation="horizontal">
 
             <androidx.recyclerview.widget.RecyclerView

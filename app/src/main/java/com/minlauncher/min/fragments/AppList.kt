@@ -10,6 +10,8 @@ import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Switch
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.edit
 import androidx.core.text.isDigitsOnly
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -40,8 +42,34 @@ class AppList : Fragment() {
 
         allApps?.let { setData(it) }
         setRecyclerView(view)
+        setDarkModeSwitch(view)
 
         return view
+    }
+
+    private fun setDarkModeSwitch(view: View) {
+        val switch = view.findViewById<Switch>(R.id.darkModeSwitch)
+
+        val sharedPreferences = activity?.getSharedPreferences(
+            Constants.DARK_MODE_SHARED_PREFERENCES_NAME.value,
+            Context.MODE_PRIVATE
+        )
+
+        val darkModeOn = sharedPreferences?.getInt(
+            Constants.DARK_MODE_SHARED_PREFERENCES_KEY.value,
+            AppCompatDelegate.MODE_NIGHT_NO
+        )
+
+        switch.isChecked = darkModeOn == AppCompatDelegate.MODE_NIGHT_YES
+        switch.setOnCheckedChangeListener { buttonView, isChecked ->
+            val intentName = if (isChecked) {
+                Constants.DARK_MODE_ON.value
+            } else {
+                Constants.DARK_MODE_OFF.value
+            }
+            val intent = Intent(intentName)
+            activity?.sendBroadcast(intent)
+        }
     }
 
     private fun getInstalledApps(): MutableList<ResolveInfo>? {
