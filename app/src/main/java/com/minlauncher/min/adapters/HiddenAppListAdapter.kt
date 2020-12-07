@@ -3,22 +3,24 @@ package com.minlauncher.min.adapters
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.minlauncher.min.Constants
 import com.minlauncher.min.R
 import com.minlauncher.min.models.AppInfo
 import com.minlauncher.min.models.ContextMenuGroup
-import com.minlauncher.min.models.HomeListItem
 
-class HomeAppListAdapter(val apps: List<AppInfo>) : RecyclerView.Adapter<HomeAppListAdapter.ViewHolder>() {
+class HiddenAppListAdapter(val apps: List<AppInfo>, val onClickListener: HiddenAppOnClickListener) : RecyclerView.Adapter<HiddenAppListAdapter.ViewHolder>() {
 
     inner class ViewHolder(val view: View) : RecyclerView.ViewHolder(view) {
-        val textView = view.findViewById<TextView>(R.id.homeAppLabel)
+        val textView = view.findViewById<TextView>(R.id.hiddenAppLabel)
+        val showImageView = view.findViewById<ImageView>(R.id.hiddenAppShow)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.home_list_item, parent, false)
+            .inflate(R.layout.hidden_list_item, parent, false)
 
         return ViewHolder(view)
     }
@@ -30,13 +32,8 @@ class HomeAppListAdapter(val apps: List<AppInfo>) : RecyclerView.Adapter<HomeApp
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = apps[position]
         holder.textView.text = item.label
-        holder.view.setOnClickListener { v ->
-            val intent = v.context.packageManager.getLaunchIntentForPackage(item.packageName)
-            v.context.startActivity(intent)
-        }
-
-        holder.view.setOnCreateContextMenuListener { menu, _, _ ->
-            menu.add(ContextMenuGroup.REMOVE_FROM_HOME.value, position, 0, "Remove from home screen")
+        holder.showImageView.setOnClickListener {
+            onClickListener.onClick(position)
         }
     }
 }

@@ -7,5 +7,6 @@ class AppListItem(
         val label: String,
         val packageName: String?,
         val icon: Drawable,
-        val separator: Boolean) {
+        val separator: Boolean,
+        val index: Int) {
 }

@@ -13,17 +13,16 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import com.minlauncher.min.Constants
 import com.minlauncher.min.R
 import com.minlauncher.min.adapters.HomeAppListAdapter
-import com.minlauncher.min.models.HomeListItem
-
+import com.minlauncher.min.models.AppInfo
+import com.minlauncher.min.models.AppInfoSharedPreferences
 
 class Home : Fragment() {
 
-    var homeApps = mutableListOf<HomeListItem>()
+    var appInfoSharedPreferences: AppInfoSharedPreferences? = null
+    var homeApps = listOf<AppInfo>()
     var batteryStatusTextView: TextView? = null
 
     val batteryStatusReceiver = object : BroadcastReceiver() {
@@ -38,7 +37,6 @@ class Home : Fragment() {
     val homeListChangedReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             loadHomeAppsFromSharedPreferences()
-            view?.let { setRecyclerView(it) }
         }
     }
 
@@ -48,6 +46,12 @@ class Home : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_home, container, false)
+        val sharedPreferencesKey = Constants.SHARED_PREFERENCES_APPS.value
+        val sharedPreferences = activity?.getSharedPreferences(sharedPreferencesKey, Context.MODE_PRIVATE)
+
+        sharedPreferences?.let {
+            appInfoSharedPreferences = AppInfoSharedPreferences(it)
+        }
 
         setBatteryStatus(view)
         loadHomeAppsFromSharedPreferences()
@@ -68,15 +72,11 @@ class Home : Fragment() {
     }
 
     private fun loadHomeAppsFromSharedPreferences() {
-        val preferencesName = Constants.SHARED_PREFERENCES_NAME.value
-        val preferencesKey = Constants.SHARED_PREFERENCES_HOME_APPS_KEY.value
+        appInfoSharedPreferences?.let {
+            homeApps = it.getHomeApps()
+        }
 
-        val appsSerialized = activity?.getSharedPreferences(preferencesName, Context.MODE_PRIVATE)
-            ?.getString(preferencesKey, "[]")
-
-        val gson = Gson()
-        val type = TypeToken.getParameterized(List::class.java, HomeListItem::class.java).type
-        homeApps = gson.fromJson<ArrayList<HomeListItem>>(appsSerialized, type)
+        view?.let { setRecyclerView(it) }
     }
 
     private fun setRecyclerView(view: View) {

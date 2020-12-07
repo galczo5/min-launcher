@@ -64,7 +64,8 @@ class AppListAdapter(val apps: List<AppListItem>) : RecyclerViewFastScroller.Bub
             }
 
             holder.view.setOnCreateContextMenuListener { menu, v, menuInfo ->
-                menu.add(ContextMenuGroup.ADD_TO_HOME.value, position, 0, "Add to home screen")
+                menu.add(ContextMenuGroup.ADD_TO_HOME.value, item.index, 0, "Add to home screen")
+                menu.add(ContextMenuGroup.HIDE_FROM_LIST.value, item.index, 0, "Hide from home screen")
             }
 
         } else {
