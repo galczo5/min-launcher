@@ -11,7 +11,7 @@ import com.minlauncher.min.models.AppListItem
 import com.minlauncher.min.models.ContextMenuGroup
 import com.viethoa.RecyclerViewFastScroller
 
-class AppListAdapter(val apps: List<AppListItem>) : RecyclerViewFastScroller.BubbleTextGetter, RecyclerView.Adapter<AppListAdapter.ViewHolder>() {
+class AppListAdapter(val apps: List<AppListItem>, val onClickListener: AppListOnClickListener) : RecyclerViewFastScroller.BubbleTextGetter, RecyclerView.Adapter<AppListAdapter.ViewHolder>() {
 
     inner class ViewHolder(val view: View, val viewType: Int) : RecyclerView.ViewHolder(view) {
         var textView: TextView? = null
@@ -57,10 +57,7 @@ class AppListAdapter(val apps: List<AppListItem>) : RecyclerViewFastScroller.Bub
             holder.imageView?.setImageDrawable(item.icon)
 
             holder.view.setOnClickListener{ v ->
-                item.packageName?.let {
-                    val intent = v.context.packageManager.getLaunchIntentForPackage(it)
-                    v.context.startActivity(intent)
-                }
+                onClickListener.onClick(position)
             }
 
             holder.view.setOnCreateContextMenuListener { menu, v, menuInfo ->

@@ -43,6 +43,13 @@ class AppInfoSharedPreferences(private val sharedPreferences: SharedPreferences)
         return load().filter { !it.hidden }
     }
 
+    fun getLastUsed(): List<AppInfo> {
+        return load()
+            .filter { it.lastUse != null }
+            .sortedByDescending { it.lastUse }
+            .take(5)
+    }
+
     fun refreshApps(list: List<AppInfo>) {
         val cached = load()
         val refreshedList = list.map {
@@ -52,7 +59,7 @@ class AppInfoSharedPreferences(private val sharedPreferences: SharedPreferences)
 
             if (find.any()) {
                 val itemInCache = find.first()
-                AppInfo(it.label, it.packageName, itemInCache.home, itemInCache.hidden)
+                AppInfo(it.label, it.packageName, itemInCache.home, itemInCache.hidden, itemInCache.lastUse)
             } else {
                 it
             }

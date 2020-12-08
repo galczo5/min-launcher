@@ -1,7 +1,6 @@
 package com.minlauncher.min
 
 import android.content.Context
-import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.Window
 import android.view.WindowManager
@@ -29,19 +28,25 @@ class SettingsActivity : AppCompatActivity() {
             appInfoSharedPreferences = AppInfoSharedPreferences(sharedPreferences)
         }
 
+        setAdapter()
+
+    }
+
+    private fun setAdapter() {
         appInfoSharedPreferences?.getHiddenApps()?.let {
             val recyclerView = findViewById<RecyclerView>(R.id.hiddenAppsList)
-
-            recyclerView.adapter = HiddenAppListAdapter(it, object : HiddenAppOnClickListener {
+            val onClickListener = object : HiddenAppOnClickListener {
                 override fun onClick(position: Int) {
                     val appInfo = it[position]
-                    appInfoSharedPreferences?.update(AppInfo(appInfo.label, appInfo.packageName, appInfo.home, false))
+                    val updatedAppInfo = AppInfo(appInfo.label, appInfo.packageName, appInfo.home, false, appInfo.lastUse)
+                    appInfoSharedPreferences?.update(updatedAppInfo)
+                    setAdapter()
                 }
-            })
+            }
 
+            recyclerView.adapter = HiddenAppListAdapter(it, onClickListener)
             recyclerView.layoutManager = LinearLayoutManager(applicationContext)
         }
-
     }
 
     fun setActivityProperties() {

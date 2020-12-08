@@ -8,7 +8,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.minlauncher.min.R
 import com.minlauncher.min.models.AppInfo
 import com.minlauncher.min.models.ContextMenuGroup
-import com.minlauncher.min.models.HomeListItem
 
 class HomeAppListAdapter(val apps: List<AppInfo>) : RecyclerView.Adapter<HomeAppListAdapter.ViewHolder>() {
 
