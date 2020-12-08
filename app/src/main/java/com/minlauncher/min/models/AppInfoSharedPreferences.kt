@@ -50,6 +50,10 @@ class AppInfoSharedPreferences(private val sharedPreferences: SharedPreferences)
             .take(5)
     }
 
+    fun getApp(label: String?, packageName: String?): AppInfo? {
+        return getApps().find { it.label == label && it.packageName == packageName }
+    }
+
     fun refreshApps(list: List<AppInfo>) {
         val cached = load()
         val refreshedList = list.map {
