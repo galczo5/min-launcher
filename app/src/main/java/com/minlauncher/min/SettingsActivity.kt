@@ -7,7 +7,7 @@ import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.minlauncher.min.adapters.HiddenAppListAdapter
+import com.minlauncher.min.adapters.SettingsAppListAdapter
 import com.minlauncher.min.adapters.HiddenAppOnClickListener
 import com.minlauncher.min.models.AppInfo
 import com.minlauncher.min.models.AppInfoSharedPreferences
@@ -44,8 +44,20 @@ class SettingsActivity : AppCompatActivity() {
                 }
             }
 
-            recyclerView.adapter = HiddenAppListAdapter(it, onClickListener)
+            recyclerView.adapter = SettingsAppListAdapter(it, onClickListener)
             recyclerView.layoutManager = LinearLayoutManager(applicationContext)
+        }
+
+        appInfoSharedPreferences?.getHomeApps()?.let {
+            val homeAppsRecyclerView = findViewById<RecyclerView>(R.id.settingsHomeAppsList)
+            val onClickListener = object : HiddenAppOnClickListener {
+                override fun onClick(position: Int) {
+
+                }
+            }
+
+            homeAppsRecyclerView.adapter = SettingsAppListAdapter(it, onClickListener)
+            homeAppsRecyclerView.layoutManager = LinearLayoutManager(applicationContext)
         }
     }
 

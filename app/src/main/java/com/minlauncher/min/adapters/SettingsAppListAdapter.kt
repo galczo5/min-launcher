@@ -6,12 +6,10 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.minlauncher.min.Constants
 import com.minlauncher.min.R
 import com.minlauncher.min.models.AppInfo
-import com.minlauncher.min.models.ContextMenuGroup
 
-class HiddenAppListAdapter(val apps: List<AppInfo>, val onClickListener: HiddenAppOnClickListener) : RecyclerView.Adapter<HiddenAppListAdapter.ViewHolder>() {
+class SettingsAppListAdapter(val apps: List<AppInfo>, val onClickListener: HiddenAppOnClickListener) : RecyclerView.Adapter<SettingsAppListAdapter.ViewHolder>() {
 
     inner class ViewHolder(val view: View) : RecyclerView.ViewHolder(view) {
         val textView = view.findViewById<TextView>(R.id.hiddenAppLabel)

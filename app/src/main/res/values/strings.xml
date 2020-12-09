@@ -12,4 +12,6 @@
     <string name="hello_world">Hello Square World!</string>
     <string name="settingsHeaderText">Settings</string>
     <string name="hiddenAppsHeaderText">Hidden apps</string>
+    <string name="launcherSettingsHeaderText">Launcher settings</string>
+    <string name="settingsHomeAppsHeaderText">Home apps</string>
 </resources>
