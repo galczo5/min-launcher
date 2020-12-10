@@ -8,12 +8,14 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.minlauncher.min.R
 import com.minlauncher.min.models.AppInfo
+import com.minlauncher.min.models.SettingsAppListItem
 
-class SettingsAppListAdapter(val apps: List<AppInfo>, val onClickListener: HiddenAppOnClickListener) : RecyclerView.Adapter<SettingsAppListAdapter.ViewHolder>() {
+class SettingsAppListAdapter(val apps: List<SettingsAppListItem>, val onClickListener: HiddenAppOnClickListener) : RecyclerView.Adapter<SettingsAppListAdapter.ViewHolder>() {
 
     inner class ViewHolder(val view: View) : RecyclerView.ViewHolder(view) {
         val textView = view.findViewById<TextView>(R.id.hiddenAppLabel)
         val showImageView = view.findViewById<ImageView>(R.id.hiddenAppShow)
+        val imageView = view.findViewById<ImageView>(R.id.settingsItemAppIcon)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -30,6 +32,7 @@ class SettingsAppListAdapter(val apps: List<AppInfo>, val onClickListener: Hidde
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = apps[position]
         holder.textView.text = item.label
+        holder.imageView.setImageDrawable(item.icon)
         holder.showImageView.setOnClickListener {
             onClickListener.onClick(position)
         }

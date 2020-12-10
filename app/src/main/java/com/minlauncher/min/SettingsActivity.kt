@@ -11,6 +11,7 @@ import com.minlauncher.min.adapters.SettingsAppListAdapter
 import com.minlauncher.min.adapters.HiddenAppOnClickListener
 import com.minlauncher.min.models.AppInfo
 import com.minlauncher.min.models.AppInfoSharedPreferences
+import com.minlauncher.min.models.SettingsAppListItem
 
 
 class SettingsActivity : AppCompatActivity() {
@@ -33,14 +34,14 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     private fun setAdapter() {
-        appInfoSharedPreferences?.getHiddenApps()?.let {
+        appInfoSharedPreferences?.getHiddenApps()?.map {
+            val applicationIcon = packageManager.getApplicationIcon(it.packageName)
+            SettingsAppListItem(it.label, it.packageName, applicationIcon)
+        }?.let {
             val recyclerView = findViewById<RecyclerView>(R.id.hiddenAppsList)
             val onClickListener = object : HiddenAppOnClickListener {
                 override fun onClick(position: Int) {
-                    val appInfo = it[position]
-                    val updatedAppInfo = AppInfo(appInfo.label, appInfo.packageName, appInfo.home, false, appInfo.lastUse)
-                    appInfoSharedPreferences?.update(updatedAppInfo)
-                    setAdapter()
+
                 }
             }
 
@@ -48,7 +49,10 @@ class SettingsActivity : AppCompatActivity() {
             recyclerView.layoutManager = LinearLayoutManager(applicationContext)
         }
 
-        appInfoSharedPreferences?.getHomeApps()?.let {
+        appInfoSharedPreferences?.getHomeApps()?.map {
+            val applicationIcon = packageManager.getApplicationIcon(it.packageName)
+            SettingsAppListItem(it.label, it.packageName, applicationIcon)
+        }?.let {
             val homeAppsRecyclerView = findViewById<RecyclerView>(R.id.settingsHomeAppsList)
             val onClickListener = object : HiddenAppOnClickListener {
                 override fun onClick(position: Int) {
