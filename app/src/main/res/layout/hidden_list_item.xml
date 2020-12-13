@@ -8,8 +8,8 @@
 
     <ImageView
         android:id="@+id/settingsItemAppIcon"
-        android:layout_width="35dp"
-        android:layout_height="35dp"
+        android:layout_width="@dimen/app_icon_size"
+        android:layout_height="@dimen/app_icon_size"
         android:contentDescription="@string/app_name"
         android:src="@drawable/ic_launcher_foreground"
         app:layout_constraintBottom_toBottomOf="parent"

@@ -13,19 +13,20 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.minlauncher.min.Constants
 import com.minlauncher.min.R
 import com.minlauncher.min.adapters.HomeAppListAdapter
+import com.minlauncher.min.adapters.HomeAppListContextMenuClickListener
+import com.minlauncher.min.intents.RefreshAppsListIntent
+import com.minlauncher.min.intents.UnpinAppIntent
 import com.minlauncher.min.models.AppInfo
-import com.minlauncher.min.models.AppInfoSharedPreferences
+import com.minlauncher.min.services.AppsService
 
 class Home : Fragment() {
 
-    var appInfoSharedPreferences: AppInfoSharedPreferences? = null
     var homeApps = listOf<AppInfo>()
     var batteryStatusTextView: TextView? = null
 
-    val batteryStatusReceiver = object : BroadcastReceiver() {
+    private val batteryStatusReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             val scale = intent!!.getIntExtra(BatteryManager.EXTRA_SCALE, -1)
             if (batteryStatusTextView != null) {
@@ -34,9 +35,10 @@ class Home : Fragment() {
         }
     }
 
-    val homeListChangedReceiver = object : BroadcastReceiver() {
+    private val appsRefreshReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-            loadHomeAppsFromSharedPreferences()
+            homeApps = AppsService.homeApps()
+            view?.let { setRecyclerView(it) }
         }
     }
 
@@ -46,43 +48,41 @@ class Home : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_home, container, false)
-        val sharedPreferencesKey = Constants.SHARED_PREFERENCES_APPS.value
-        val sharedPreferences = activity?.getSharedPreferences(sharedPreferencesKey, Context.MODE_PRIVATE)
 
-        sharedPreferences?.let {
-            appInfoSharedPreferences = AppInfoSharedPreferences(it)
-        }
-
+        homeApps = AppsService.homeApps()
         setBatteryStatus(view)
-        loadHomeAppsFromSharedPreferences()
         setRecyclerView(view)
 
-        val intentFilter = IntentFilter(Constants.REFRESH_HOME_INTENT.value)
-        activity?.registerReceiver(homeListChangedReceiver, intentFilter)
+        activity?.registerReceiver(batteryStatusReceiver, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
+        activity?.registerReceiver(appsRefreshReceiver, IntentFilter(RefreshAppsListIntent.ACTION))
 
         return view
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        activity?.unregisterReceiver(appsRefreshReceiver)
+        activity?.unregisterReceiver(batteryStatusReceiver)
+    }
+
     private fun setBatteryStatus(view: View) {
-        batteryStatusTextView = view.findViewById<TextView>(R.id.batteryStatus)
-        activity?.registerReceiver(
-            batteryStatusReceiver,
-            IntentFilter(Intent.ACTION_BATTERY_CHANGED)
-        )
+        batteryStatusTextView = view.findViewById(R.id.batteryStatus)
     }
 
-    private fun loadHomeAppsFromSharedPreferences() {
-        appInfoSharedPreferences?.let {
-            homeApps = it.getHomeApps()
-        }
-
-        view?.let { setRecyclerView(it) }
-    }
 
     private fun setRecyclerView(view: View) {
         val recyclerView = view.findViewById<RecyclerView>(R.id.homeAppList)
+        val contextMenuClickListener = object : HomeAppListContextMenuClickListener {
+            override fun onRemoveFromHome(label: String, packageName: String) {
+                activity?.baseContext?.also {
+                    val intent = UnpinAppIntent.create(it, label, packageName)
+                    activity?.startService(intent)
+                }
+            }
+        }
+
         recyclerView.layoutManager = LinearLayoutManager(context)
-        recyclerView.adapter = HomeAppListAdapter(homeApps)
+        recyclerView.adapter = HomeAppListAdapter(homeApps, contextMenuClickListener)
     }
 
 }

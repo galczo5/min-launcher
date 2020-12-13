@@ -27,22 +27,6 @@ class AppInfoSharedPreferences(private val sharedPreferences: SharedPreferences)
         }
     }
 
-    fun getHomeApps(): List<AppInfo> {
-        return load().filter {
-            it.home
-        }
-    }
-
-    fun getHiddenApps(): List<AppInfo> {
-        return load().filter {
-            it.hidden
-        }
-    }
-
-    fun getApps(): List<AppInfo> {
-        return load().filter { !it.hidden }
-    }
-
     fun getLastUsed(): List<AppInfo> {
         return load()
             .filter { it.lastUse != null }
@@ -51,7 +35,7 @@ class AppInfoSharedPreferences(private val sharedPreferences: SharedPreferences)
     }
 
     fun getApp(label: String?, packageName: String?): AppInfo? {
-        return getApps().find { it.label == label && it.packageName == packageName }
+        return load().find { it.label == label && it.packageName == packageName }
     }
 
     fun refreshApps(list: List<AppInfo>) {

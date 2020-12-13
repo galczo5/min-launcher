@@ -11,7 +11,10 @@ import com.minlauncher.min.models.AppListItem
 import com.minlauncher.min.models.ContextMenuGroup
 import com.viethoa.RecyclerViewFastScroller
 
-class AppListAdapter(val apps: List<AppListItem>, val onClickListener: AppListOnClickListener) : RecyclerViewFastScroller.BubbleTextGetter, RecyclerView.Adapter<AppListAdapter.ViewHolder>() {
+class AppListAdapter(val apps: List<AppListItem>,
+                     val onClickListener: AppListOnClickListener,
+                     val onContextMenuClickListener: AppListContextMenuClickListener)
+    : RecyclerViewFastScroller.BubbleTextGetter, RecyclerView.Adapter<AppListAdapter.ViewHolder>() {
 
     inner class ViewHolder(val view: View, val viewType: Int) : RecyclerView.ViewHolder(view) {
         var textView: TextView? = null
@@ -34,7 +37,7 @@ class AppListAdapter(val apps: List<AppListItem>, val onClickListener: AppListOn
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        var resource = if (viewType == 0) {
+        val resource = if (viewType == 0) {
             R.layout.app_list_item
         } else {
             R.layout.app_list_separator
@@ -62,7 +65,21 @@ class AppListAdapter(val apps: List<AppListItem>, val onClickListener: AppListOn
 
             holder.view.setOnCreateContextMenuListener { menu, v, menuInfo ->
                 menu.add(ContextMenuGroup.ADD_TO_HOME.value, item.index, 0, "Add to home screen")
-                menu.add(ContextMenuGroup.HIDE_FROM_LIST.value, item.index, 0, "Hide from home screen")
+                    .setOnMenuItemClickListener {
+                        item.packageName?.let { packageName ->
+                            onContextMenuClickListener.onAddToHome(item.label, packageName)
+                        }
+
+                        true
+                    }
+
+                menu.add(ContextMenuGroup.HIDE_FROM_LIST.value, item.index, 0, "Hide app")
+                    .setOnMenuItemClickListener {
+                        item.packageName?.let { packageName ->
+                            onContextMenuClickListener.onHide(item.label, packageName)
+                        }
+                        true
+                    }
             }
 
         } else {

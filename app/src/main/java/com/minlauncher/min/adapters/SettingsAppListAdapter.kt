@@ -7,10 +7,9 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.minlauncher.min.R
-import com.minlauncher.min.models.AppInfo
 import com.minlauncher.min.models.SettingsAppListItem
 
-class SettingsAppListAdapter(val apps: List<SettingsAppListItem>, val onClickListener: HiddenAppOnClickListener) : RecyclerView.Adapter<SettingsAppListAdapter.ViewHolder>() {
+class SettingsAppListAdapter(val apps: List<SettingsAppListItem>, val onClickListener: SettingsAppOnClickListener) : RecyclerView.Adapter<SettingsAppListAdapter.ViewHolder>() {
 
     inner class ViewHolder(val view: View) : RecyclerView.ViewHolder(view) {
         val textView = view.findViewById<TextView>(R.id.hiddenAppLabel)
@@ -34,7 +33,9 @@ class SettingsAppListAdapter(val apps: List<SettingsAppListItem>, val onClickLis
         holder.textView.text = item.label
         holder.imageView.setImageDrawable(item.icon)
         holder.showImageView.setOnClickListener {
-            onClickListener.onClick(position)
+            item.packageName?.let { packageName ->
+                onClickListener.onClick(item.label, packageName)
+            }
         }
     }
 }

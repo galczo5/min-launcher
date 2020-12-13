@@ -9,7 +9,9 @@ import com.minlauncher.min.R
 import com.minlauncher.min.models.AppInfo
 import com.minlauncher.min.models.ContextMenuGroup
 
-class HomeAppListAdapter(val apps: List<AppInfo>) : RecyclerView.Adapter<HomeAppListAdapter.ViewHolder>() {
+class HomeAppListAdapter(val apps: List<AppInfo>,
+                         val contextMenuClickListener: HomeAppListContextMenuClickListener)
+    : RecyclerView.Adapter<HomeAppListAdapter.ViewHolder>() {
 
     inner class ViewHolder(val view: View) : RecyclerView.ViewHolder(view) {
         val textView = view.findViewById<TextView>(R.id.homeAppLabel)
@@ -28,6 +30,7 @@ class HomeAppListAdapter(val apps: List<AppInfo>) : RecyclerView.Adapter<HomeApp
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = apps[position]
+
         holder.textView.text = item.label
         holder.view.setOnClickListener { v ->
             val intent = v.context.packageManager.getLaunchIntentForPackage(item.packageName)
@@ -35,7 +38,10 @@ class HomeAppListAdapter(val apps: List<AppInfo>) : RecyclerView.Adapter<HomeApp
         }
 
         holder.view.setOnCreateContextMenuListener { menu, _, _ ->
-            menu.add(ContextMenuGroup.REMOVE_FROM_HOME.value, position, 0, "Remove from home screen")
+            menu.add(ContextMenuGroup.REMOVE_FROM_HOME.value, position, 0, "Remove from home screen").setOnMenuItemClickListener {
+                contextMenuClickListener.onRemoveFromHome(item.label, item.packageName)
+                true
+            }
         }
     }
 }

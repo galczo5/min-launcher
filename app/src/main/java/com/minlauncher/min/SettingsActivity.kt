@@ -1,6 +1,9 @@
 package com.minlauncher.min
 
+import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.os.Bundle
 import android.view.Window
 import android.view.WindowManager
@@ -8,61 +11,63 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.minlauncher.min.adapters.SettingsAppListAdapter
-import com.minlauncher.min.adapters.HiddenAppOnClickListener
-import com.minlauncher.min.models.AppInfo
-import com.minlauncher.min.models.AppInfoSharedPreferences
+import com.minlauncher.min.adapters.SettingsAppOnClickListener
+import com.minlauncher.min.intents.MarkAppAsVisibleIntent
+import com.minlauncher.min.intents.RefreshAppsListIntent
+import com.minlauncher.min.intents.UnpinAppIntent
 import com.minlauncher.min.models.SettingsAppListItem
-
+import com.minlauncher.min.services.AppsService
 
 class SettingsActivity : AppCompatActivity() {
 
-    var appInfoSharedPreferences: AppInfoSharedPreferences? = null
+    private val refreshAppsReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            setAdapter()
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setActivityProperties()
         setContentView(R.layout.activity_settings)
 
-        val sharedPreferences = getSharedPreferences(Constants.SHARED_PREFERENCES_APPS.value, Context.MODE_PRIVATE)
-
-        sharedPreferences?.let {
-            appInfoSharedPreferences = AppInfoSharedPreferences(sharedPreferences)
-        }
-
+        registerReceiver(refreshAppsReceiver, IntentFilter(RefreshAppsListIntent.ACTION))
         setAdapter()
+    }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        unregisterReceiver(refreshAppsReceiver)
     }
 
     private fun setAdapter() {
-        appInfoSharedPreferences?.getHiddenApps()?.map {
+        val hiddenApps = AppsService.hiddenApps().map {
             val applicationIcon = packageManager.getApplicationIcon(it.packageName)
             SettingsAppListItem(it.label, it.packageName, applicationIcon)
-        }?.let {
-            val recyclerView = findViewById<RecyclerView>(R.id.hiddenAppsList)
-            val onClickListener = object : HiddenAppOnClickListener {
-                override fun onClick(position: Int) {
-
-                }
-            }
-
-            recyclerView.adapter = SettingsAppListAdapter(it, onClickListener)
-            recyclerView.layoutManager = LinearLayoutManager(applicationContext)
         }
 
-        appInfoSharedPreferences?.getHomeApps()?.map {
+        val recyclerView = findViewById<RecyclerView>(R.id.hiddenAppsList)
+        recyclerView.layoutManager = LinearLayoutManager(applicationContext)
+        recyclerView.adapter = SettingsAppListAdapter(hiddenApps, object : SettingsAppOnClickListener {
+            override fun onClick(label: String, packageName: String) {
+                val intent = MarkAppAsVisibleIntent.create(baseContext, label, packageName)
+                startService(intent)
+            }
+        })
+
+        val homeApps = AppsService.homeApps().map {
             val applicationIcon = packageManager.getApplicationIcon(it.packageName)
             SettingsAppListItem(it.label, it.packageName, applicationIcon)
-        }?.let {
-            val homeAppsRecyclerView = findViewById<RecyclerView>(R.id.settingsHomeAppsList)
-            val onClickListener = object : HiddenAppOnClickListener {
-                override fun onClick(position: Int) {
-
-                }
-            }
-
-            homeAppsRecyclerView.adapter = SettingsAppListAdapter(it, onClickListener)
-            homeAppsRecyclerView.layoutManager = LinearLayoutManager(applicationContext)
         }
+
+        val homeAppsRecyclerView = findViewById<RecyclerView>(R.id.settingsHomeAppsList)
+        homeAppsRecyclerView.layoutManager = LinearLayoutManager(applicationContext)
+        homeAppsRecyclerView.adapter = SettingsAppListAdapter(homeApps, object : SettingsAppOnClickListener {
+            override fun onClick(label: String, packageName: String) {
+                val intent = UnpinAppIntent.create(baseContext, label, packageName)
+                startService(intent)
+            }
+        })
     }
 
     fun setActivityProperties() {
@@ -71,6 +76,5 @@ class SettingsActivity : AppCompatActivity() {
         getSupportActionBar()?.hide()
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
     }
-
 
 }
