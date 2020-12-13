@@ -9,23 +9,28 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:layout_margin="20dp"
         android:layout_gravity="center">
 
         <TextClock
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/margin_left"
+            android:layout_marginRight="@dimen/margin_right"/>
 
         <TextClock
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:format12Hour="EEE dd.MM.yyyy"
-            android:format24Hour="EEE dd.MM.yyyy"/>
+            android:format24Hour="EEE dd.MM.yyyy"
+            android:layout_marginLeft="@dimen/margin_left"
+            android:layout_marginRight="@dimen/margin_right"/>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            android:layout_marginLeft="@dimen/margin_left"
+            android:layout_marginRight="@dimen/margin_right">
 
             <TextView
                 android:id="@+id/batteryStatus"
@@ -41,7 +46,9 @@
             android:layout_height="wrap_content"
             android:background="@drawable/res_line"
             android:layout_marginTop="10dp"
-            android:layout_marginBottom="20dp"/>
+            android:layout_marginBottom="20dp"
+            android:layout_marginLeft="@dimen/margin_left"
+            android:layout_marginRight="@dimen/margin_right"/>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/homeAppList"
