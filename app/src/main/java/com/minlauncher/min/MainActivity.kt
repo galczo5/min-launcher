@@ -56,10 +56,6 @@ class MainActivity : AppCompatActivity() {
         val viewPager = findViewById<ViewPager2>(R.id.viewPager)
         viewPager.adapter = MainActivityScreensAdapter(supportFragmentManager, lifecycle)
 
-//        https://gist.github.com/paulo-raca/471680c0fe4d8f91b8cde486039b0dcd
-//        startActivity(Intent(ACTION_NOTIFICATION_LISTENER_SETTINGS));
-//        startService(Intent(baseContext, NotificationListener::class.java))
-
         startService(Intent(baseContext, AppsService::class.java))
     }
 
@@ -67,6 +63,7 @@ class MainActivity : AppCompatActivity() {
         super.onDestroy()
         unregisterReceiver(darkModeOnBroadcastReceiver)
         unregisterReceiver(darkModeOffBroadcastReceiver)
+        stopService(Intent(baseContext, AppsService::class.java))
     }
 
     private fun saveDarkMode(mode: Int) {

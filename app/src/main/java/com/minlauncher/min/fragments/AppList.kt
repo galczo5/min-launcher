@@ -166,33 +166,28 @@ class AppList : Fragment() {
     private fun setSortedApps(apps: List<AppInfo>?, lastUsedApps: List<AppInfo>?) {
         var headingLetter: String? = null
         lastUsedApps?.forEachIndexed { index, appInfo ->
-            val packageName = appInfo.packageName
-            val label = appInfo.label
-
-            val icon = packageManager?.getApplicationIcon(packageName)
-            icon?.let {
-                val appListItem = AppListItem(label, packageName, it, false, index)
-                items.add(appListItem)
-            }
+            addAppListItem(appInfo, index)
         }
 
         apps?.forEachIndexed { index, appInfo ->
-            val packageName = appInfo.packageName
-            val label = appInfo.label
-
-            val labelFirstLetter = label[0].toUpperCase().toString()
+            val labelFirstLetter = appInfo.label[0].toUpperCase().toString()
             if (headingLetter != labelFirstLetter) {
                 addSeparator(labelFirstLetter, index)
             }
 
             headingLetter = labelFirstLetter
+            addAppListItem(appInfo, lastUsedApps?.size!! + index)
+        }
+    }
 
-            val icon = packageManager?.getApplicationIcon(packageName)
-            icon?.let {
-                val appIndex = lastUsedApps?.size!! + index
-                val appListItem = AppListItem(label, packageName, it, false, appIndex)
-                items.add(appListItem)
-            }
+    private fun addAppListItem(appInfo: AppInfo, index: Int) {
+        val packageName = appInfo.packageName
+        val label = appInfo.label
+
+        val icon = packageManager?.getApplicationIcon(packageName)
+        icon?.let {
+            val appListItem = AppListItem(label, packageName, it, false, index)
+            items.add(appListItem)
         }
     }
 

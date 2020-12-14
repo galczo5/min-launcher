@@ -17,18 +17,31 @@
         android:theme="@style/Theme.Min">
 
         <service
+            android:name=".services.NotificationsService"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE"
+            android:enabled="true"
+            android:exported="true">
+
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
+        </service>
+
+        <service
             android:name=".services.AppsService"
             android:enabled="true"
-            android:exported="true"/>
+            android:exported="true" />
 
         <activity
             android:name=".SettingsActivity"
             android:label="@string/title_activity_settings">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -38,6 +51,7 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+
     </application>
 
 </manifest>

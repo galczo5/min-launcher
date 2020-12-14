@@ -24,21 +24,20 @@ import com.minlauncher.min.services.AppsService
 class Home : Fragment() {
 
     var homeApps = listOf<AppInfo>()
-    var batteryStatusTextView: TextView? = null
+    lateinit var batteryStatusTextView: TextView
+    lateinit var recyclerView: RecyclerView
 
     private val batteryStatusReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             val scale = intent!!.getIntExtra(BatteryManager.EXTRA_SCALE, -1)
-            if (batteryStatusTextView != null) {
-                batteryStatusTextView?.text = "$scale% battery"
-            }
+            batteryStatusTextView.text = "$scale% battery"
         }
     }
 
     private val appsRefreshReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             homeApps = AppsService.homeApps()
-            view?.let { setRecyclerView(it) }
+            setRecyclerView()
         }
     }
 
@@ -49,9 +48,11 @@ class Home : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_home, container, false)
 
+        batteryStatusTextView = view.findViewById(R.id.batteryStatus)
+        recyclerView = view.findViewById(R.id.homeAppList)
+
         homeApps = AppsService.homeApps()
-        setBatteryStatus(view)
-        setRecyclerView(view)
+        setRecyclerView()
 
         activity?.registerReceiver(batteryStatusReceiver, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
         activity?.registerReceiver(appsRefreshReceiver, IntentFilter(RefreshAppsListIntent.ACTION))
@@ -65,13 +66,7 @@ class Home : Fragment() {
         activity?.unregisterReceiver(batteryStatusReceiver)
     }
 
-    private fun setBatteryStatus(view: View) {
-        batteryStatusTextView = view.findViewById(R.id.batteryStatus)
-    }
-
-
-    private fun setRecyclerView(view: View) {
-        val recyclerView = view.findViewById<RecyclerView>(R.id.homeAppList)
+    private fun setRecyclerView() {
         val contextMenuClickListener = object : HomeAppListContextMenuClickListener {
             override fun onRemoveFromHome(label: String, packageName: String) {
                 activity?.baseContext?.also {
