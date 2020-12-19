@@ -6,19 +6,24 @@ import androidx.lifecycle.Lifecycle
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.minlauncher.min.fragments.AppList
 import com.minlauncher.min.fragments.Home
-import com.minlauncher.min.fragments.Notifications
+import com.minlauncher.min.fragments.NotificationsWrapper
 
 class MainActivityScreensAdapter(fragment: FragmentManager, lifecycle: Lifecycle) : FragmentStateAdapter(fragment, lifecycle) {
 
     override fun getItemCount(): Int {
-        return 3
+        return 5
     }
 
     override fun createFragment(position: Int): Fragment {
+        val appList = AppList()
+        val notifications = NotificationsWrapper()
+        val home = Home()
+
         return when (position) {
-            0 -> { Notifications() }
-            1 -> { Home() }
-            else -> { AppList() }
+            1 -> { notifications }
+            2 -> { home }
+            3 -> { appList }
+            else -> { Fragment() }
         }
     }
 

@@ -17,15 +17,18 @@ import com.minlauncher.min.R
 import com.minlauncher.min.adapters.HomeAppListAdapter
 import com.minlauncher.min.adapters.HomeAppListContextMenuClickListener
 import com.minlauncher.min.intents.RefreshAppsListIntent
+import com.minlauncher.min.intents.RefreshNotificationListIntent
 import com.minlauncher.min.intents.UnpinAppIntent
 import com.minlauncher.min.models.AppInfo
 import com.minlauncher.min.services.AppsService
+import com.minlauncher.min.services.NotificationsService
 
 class Home : Fragment() {
 
     var homeApps = listOf<AppInfo>()
     lateinit var batteryStatusTextView: TextView
     lateinit var recyclerView: RecyclerView
+    lateinit var notificationsCounterView: TextView
 
     private val batteryStatusReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -41,6 +44,12 @@ class Home : Fragment() {
         }
     }
 
+    private val notificationsBroadcastReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            setNotificationsCounter()
+        }
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -50,12 +59,15 @@ class Home : Fragment() {
 
         batteryStatusTextView = view.findViewById(R.id.batteryStatus)
         recyclerView = view.findViewById(R.id.homeAppList)
+        notificationsCounterView = view.findViewById(R.id.homeNotificationsCounter)
 
         homeApps = AppsService.homeApps()
         setRecyclerView()
+        setNotificationsCounter()
 
         activity?.registerReceiver(batteryStatusReceiver, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
         activity?.registerReceiver(appsRefreshReceiver, IntentFilter(RefreshAppsListIntent.ACTION))
+        activity?.registerReceiver(notificationsBroadcastReceiver, IntentFilter(RefreshNotificationListIntent.ACTION))
 
         return view
     }
@@ -64,6 +76,7 @@ class Home : Fragment() {
         super.onDestroyView()
         activity?.unregisterReceiver(appsRefreshReceiver)
         activity?.unregisterReceiver(batteryStatusReceiver)
+        activity?.unregisterReceiver(notificationsBroadcastReceiver)
     }
 
     private fun setRecyclerView() {
@@ -78,6 +91,17 @@ class Home : Fragment() {
 
         recyclerView.layoutManager = LinearLayoutManager(context)
         recyclerView.adapter = HomeAppListAdapter(homeApps, contextMenuClickListener)
+    }
+
+    private fun setNotificationsCounter() {
+        NotificationsService.getNotifications().size.also {
+            notificationsCounterView.text = "$it active notifications"
+            if (it == 0) {
+                notificationsCounterView.visibility = View.GONE
+            } else {
+                notificationsCounterView.visibility = View.VISIBLE
+            }
+        }
     }
 
 }

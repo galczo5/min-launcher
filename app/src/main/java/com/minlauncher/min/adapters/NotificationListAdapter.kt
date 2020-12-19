@@ -4,18 +4,22 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.TextClock
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.minlauncher.min.R
-import com.minlauncher.min.models.AppNotification
 import com.minlauncher.min.models.AppNotificationListItem
+import java.text.SimpleDateFormat
+import java.util.*
 
-class NotificationListAdapter(val notifications: List<AppNotificationListItem>) : RecyclerView.Adapter<NotificationListAdapter.ViewHolder>() {
+class NotificationListAdapter(val notifications: List<AppNotificationListItem>, val onClickListener: NotificationListClickListener) : RecyclerView.Adapter<NotificationListAdapter.ViewHolder>() {
 
-    inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+    inner class ViewHolder(val view: View) : RecyclerView.ViewHolder(view) {
         val labelTextView = view.findViewById<TextView>(R.id.notificationLabel)
         val descriptionTextView = view.findViewById<TextView>(R.id.notificationText)
         val iconImageView = view.findViewById<ImageView>(R.id.notificationIcon)
+        val applicationLabelTextView = view.findViewById<TextView>(R.id.notificationApplicationLabel)
+        val notificationTimeTextClock = view.findViewById<TextClock>(R.id.notificationTime)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -34,5 +38,11 @@ class NotificationListAdapter(val notifications: List<AppNotificationListItem>) 
         holder.labelTextView.text = notification.title
         holder.descriptionTextView.text = notification.desc
         holder.iconImageView.setImageDrawable(notification.icon)
+        holder.applicationLabelTextView.text = notification.applicationLabel
+        holder.notificationTimeTextClock.text = SimpleDateFormat().format(Date(notification.postDate))
+
+        holder.view.setOnClickListener {
+            onClickListener.onClick(position)
+        }
     }
 }

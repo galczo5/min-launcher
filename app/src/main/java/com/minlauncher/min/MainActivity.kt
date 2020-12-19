@@ -55,6 +55,17 @@ class MainActivity : AppCompatActivity() {
 
         val viewPager = findViewById<ViewPager2>(R.id.viewPager)
         viewPager.adapter = MainActivityScreensAdapter(supportFragmentManager, lifecycle)
+        viewPager.currentItem = 1
+        viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+            override fun onPageSelected(position: Int) {
+                if (position == 0) {
+                    viewPager.currentItem = 3
+                } else if (position == 4) {
+                    viewPager.currentItem = 1
+                }
+                super.onPageSelected(position)
+            }
+        })
 
         startService(Intent(baseContext, AppsService::class.java))
     }

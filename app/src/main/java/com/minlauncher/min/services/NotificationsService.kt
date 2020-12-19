@@ -18,7 +18,15 @@ class NotificationsService : NotificationListenerService() {
                     .map {
                         val title = it.notification.extras.getCharSequence("android.title").toString()
                         val text = it.notification.extras.getCharSequence("android.text").toString()
-                        AppNotification(it.packageName, title, text)
+                        AppNotification(
+                            it.id,
+                            it.tag,
+                            it.packageName,
+                            it.notification.contentIntent,
+                            title,
+                            text,
+                            it.postTime
+                        )
                     }
             }
         }
