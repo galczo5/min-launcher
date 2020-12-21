@@ -32,27 +32,25 @@ import com.viethoa.models.AlphabetItem
 
 class AppList : Fragment() {
 
-    var items = mutableListOf<AppListItem>()
-    var alphabet = mutableListOf<AlphabetItem>()
+    var apps = listOf<AppInfo>()
+    var lastUsedApps = listOf<AppInfo>()
 
     lateinit var settingsCog: ImageView
     lateinit var swipeRefreshLayout: SwipeRefreshLayout
     lateinit var switch: Switch
     lateinit var recyclerView: RecyclerView
     lateinit var fastScroller: RecyclerViewFastScroller
-    var packageManager: PackageManager? = null
+    lateinit var packageManager: PackageManager
+    private var paused: Boolean = true
 
     private val appsRefreshReceivers = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-            items = mutableListOf()
-            alphabet = mutableListOf()
+            apps = AppsService.allApps()
+            lastUsedApps = AppsService.lastUsed()
 
-            val apps = AppsService.allApps()
-            val lastUsedApps = AppsService.lastUsed()
-
-            setSortedApps(apps, lastUsedApps)
-            setAlphabet()
-            setRecyclerView()
+            if (!paused) {
+                setRecyclerView()
+            }
         }
     }
 
@@ -68,7 +66,10 @@ class AppList : Fragment() {
         switch = view.findViewById(R.id.darkModeSwitch)
         recyclerView = view.findViewById(R.id.appList)
         fastScroller = view.findViewById(R.id.fastScroller)
-        packageManager = activity?.packageManager
+
+        activity?.packageManager?.let {
+            packageManager = it
+        }
 
         activity?.registerReceiver(appsRefreshReceivers, IntentFilter(RefreshAppsListIntent.ACTION))
 
@@ -84,6 +85,16 @@ class AppList : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         activity?.unregisterReceiver(appsRefreshReceivers)
+    }
+
+    override fun onPause() {
+        paused = true
+        super.onPause()
+    }
+
+    override fun onResume() {
+        paused = false
+        super.onResume()
     }
 
     private fun setSettingsCog() {
@@ -126,6 +137,7 @@ class AppList : Fragment() {
     }
 
     private fun setRecyclerView() {
+        val items = getItems()
         val baseContext = activity?.baseContext
         val clickListener = object : AppListOnClickListener {
             override fun onClick(position: Int) {
@@ -136,7 +148,7 @@ class AppList : Fragment() {
                         activity?.startService(intent)
                     }
 
-                    val intent = packageManager?.getLaunchIntentForPackage(item.packageName)
+                    val intent = packageManager.getLaunchIntentForPackage(item.packageName)
                     context?.startActivity(intent)
                 }
             }
@@ -159,50 +171,52 @@ class AppList : Fragment() {
         recyclerView.layoutManager = LinearLayoutManager(context)
         recyclerView.adapter = AppListAdapter(items, clickListener, menuClickListener)
 
+        val alphabet = getAlphabet(items)
         fastScroller.setUpAlphabet(alphabet)
         fastScroller.setRecyclerView(recyclerView)
     }
 
-    private fun setSortedApps(apps: List<AppInfo>?, lastUsedApps: List<AppInfo>?) {
+    private fun getItems(): List<AppListItem> {
         var headingLetter: String? = null
-        lastUsedApps?.forEachIndexed { index, appInfo ->
-            addAppListItem(appInfo, index)
+        val items = mutableListOf<AppListItem>()
+        lastUsedApps.forEachIndexed { index, appInfo ->
+            items.add(getAppListItem(appInfo, index))
         }
 
-        apps?.forEachIndexed { index, appInfo ->
+        apps.forEachIndexed { index, appInfo ->
             val labelFirstLetter = appInfo.label[0].toUpperCase().toString()
             if (headingLetter != labelFirstLetter) {
-                addSeparator(labelFirstLetter, index)
+                items.add(getSeparator(labelFirstLetter, index))
             }
 
             headingLetter = labelFirstLetter
-            addAppListItem(appInfo, lastUsedApps?.size!! + index)
+            items.add(getAppListItem(appInfo, lastUsedApps.size + index))
         }
+
+        return items.toList()
     }
 
-    private fun addAppListItem(appInfo: AppInfo, index: Int) {
+    private fun getAppListItem(appInfo: AppInfo, index: Int): AppListItem {
         val packageName = appInfo.packageName
         val label = appInfo.label
 
-        val icon = packageManager?.getApplicationIcon(packageName)
-        icon?.let {
-            val appListItem = AppListItem(label, packageName, it, false, index)
-            items.add(appListItem)
-        }
+        val icon = packageManager.getApplicationIcon(packageName)
+        return AppListItem(label, packageName, icon, false, index)
     }
 
-    private fun addSeparator(labelFirstLetter: String, index: Int) {
+    private fun getSeparator(labelFirstLetter: String, index: Int): AppListItem {
         val separatorLabel = if (labelFirstLetter.isDigitsOnly()) "0-9" else labelFirstLetter
-        val appListItem = AppListItem(separatorLabel, null, ShapeDrawable(), true, index)
-        items.add(appListItem)
+        return AppListItem(separatorLabel, null, ShapeDrawable(), true, index)
     }
 
-    private fun setAlphabet() {
-        items.mapIndexed { index, item ->
+    private fun getAlphabet(items: List<AppListItem>): List<AlphabetItem> {
+        return items.mapIndexed { index, item ->
             if (item.separator && item.label != "0-9") {
                 val firstLetter = item.label[0].toUpperCase().toString()
-                alphabet.add(AlphabetItem(index, firstLetter, false))
+                AlphabetItem(index, firstLetter, false)
+            } else {
+                null
             }
-        }
+        }.filterNotNull()
     }
 }

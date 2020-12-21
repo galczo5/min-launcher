@@ -58,8 +58,8 @@
             android:layout_marginLeft="@dimen/margin_left"
             android:layout_marginRight="@dimen/margin_right"/>
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/homeAppList"
+        <FrameLayout
+            android:id="@+id/homeAppsFragment"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
 

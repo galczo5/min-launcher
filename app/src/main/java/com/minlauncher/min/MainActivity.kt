@@ -85,9 +85,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setActivityProperties() {
-        // Hide top bar
         requestWindowFeature(Window.FEATURE_NO_TITLE)
-        getSupportActionBar()?.hide()
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
+        supportActionBar?.hide()
+        window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
     }
 }

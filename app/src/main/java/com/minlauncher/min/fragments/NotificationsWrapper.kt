@@ -15,9 +15,15 @@ import com.minlauncher.min.services.NotificationsService
 
 class NotificationsWrapper : Fragment() {
 
+    private var notificationsCount: Int = 0
+    private var paused: Boolean = true
+
     private val notificationBroadcastReceiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-            setNotificationsFragment()
+            notificationsCount = NotificationsService.getNotifications().size
+            if (!paused) {
+                setNotificationsFragment()
+            }
         }
     }
 
@@ -26,7 +32,6 @@ class NotificationsWrapper : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_notifications_wrapper, container, false)
-        setNotificationsFragment()
         activity?.registerReceiver(notificationBroadcastReceiver, IntentFilter(RefreshNotificationListIntent.ACTION))
         return view
     }
@@ -36,17 +41,29 @@ class NotificationsWrapper : Fragment() {
         activity?.unregisterReceiver(notificationBroadcastReceiver)
     }
 
+    override fun onResume() {
+        super.onResume()
+        paused = false
+        setNotificationsFragment()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        paused = true
+    }
+
     private fun setNotificationsFragment() {
         activity?.supportFragmentManager?.also {
-            val transaction = it.beginTransaction()
-            val size = NotificationsService.getNotifications().size
-
-            if (size == 0) {
-                transaction.replace(R.id.notificationsWrapperFragment, EmptyNotifications())
+            val fragment = if (notificationsCount == 0) {
+                EmptyNotifications()
             } else {
-                transaction.replace(R.id.notificationsWrapperFragment, Notifications())
+                Notifications()
             }
 
+            val transaction = it.beginTransaction()
+            val wrapperFragment = R.id.notificationsWrapperFragment
+
+            transaction.replace(wrapperFragment, fragment)
             transaction.commit()
         }
     }

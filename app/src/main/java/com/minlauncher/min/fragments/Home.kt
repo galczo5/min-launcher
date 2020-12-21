@@ -11,43 +11,67 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.minlauncher.min.R
-import com.minlauncher.min.adapters.HomeAppListAdapter
-import com.minlauncher.min.adapters.HomeAppListContextMenuClickListener
-import com.minlauncher.min.intents.RefreshAppsListIntent
 import com.minlauncher.min.intents.RefreshNotificationListIntent
-import com.minlauncher.min.intents.UnpinAppIntent
-import com.minlauncher.min.models.AppInfo
-import com.minlauncher.min.services.AppsService
+import com.minlauncher.min.intents.SetHomeIconsIntent
 import com.minlauncher.min.services.NotificationsService
 
 class Home : Fragment() {
 
-    var homeApps = listOf<AppInfo>()
+    private var paused: Boolean = true
+    private var showOnlyIcons: Boolean = false
+    private var batteryStatusText: String = ""
+    private var numberOfNotifications: Int = 0
+
     lateinit var batteryStatusTextView: TextView
-    lateinit var recyclerView: RecyclerView
     lateinit var notificationsCounterView: TextView
 
     private val batteryStatusReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-            val scale = intent!!.getIntExtra(BatteryManager.EXTRA_SCALE, -1)
-            batteryStatusTextView.text = "$scale% battery"
-        }
-    }
+            intent?.also {
+                val scale = it.getIntExtra(BatteryManager.EXTRA_SCALE, -1)
+                batteryStatusText = "$scale% battery"
 
-    private val appsRefreshReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
-            homeApps = AppsService.homeApps()
-            setRecyclerView()
+                if (!paused) {
+                    setBatteryStatusTextView()
+                }
+            }
         }
     }
 
     private val notificationsBroadcastReceiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-            setNotificationsCounter()
+            numberOfNotifications = NotificationsService.getNotifications().size
+
+            if (!paused) {
+                setNotificationsCounterTextView()
+            }
         }
+    }
+
+    private val setHomeIconsBroadcastReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            intent?.also {
+                showOnlyIcons = it.getBooleanExtra(SetHomeIconsIntent.EXTRA, false)
+                if (!paused) {
+                    setAppsFragment()
+                }
+            }
+        }
+    }
+
+    override fun onPause() {
+        paused = true
+        super.onPause()
+    }
+
+    override fun onResume() {
+        paused = false
+        super.onResume()
+
+        setAppsFragment()
+        setBatteryStatusTextView()
+        setNotificationsCounterTextView()
     }
 
     override fun onCreateView(
@@ -58,50 +82,50 @@ class Home : Fragment() {
         val view = inflater.inflate(R.layout.fragment_home, container, false)
 
         batteryStatusTextView = view.findViewById(R.id.batteryStatus)
-        recyclerView = view.findViewById(R.id.homeAppList)
         notificationsCounterView = view.findViewById(R.id.homeNotificationsCounter)
 
-        homeApps = AppsService.homeApps()
-        setRecyclerView()
-        setNotificationsCounter()
-
         activity?.registerReceiver(batteryStatusReceiver, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
-        activity?.registerReceiver(appsRefreshReceiver, IntentFilter(RefreshAppsListIntent.ACTION))
         activity?.registerReceiver(notificationsBroadcastReceiver, IntentFilter(RefreshNotificationListIntent.ACTION))
+        activity?.registerReceiver(setHomeIconsBroadcastReceiver, IntentFilter(SetHomeIconsIntent.ACTION))
+
+        setBatteryStatusTextView()
+        setNotificationsCounterTextView()
+        setAppsFragment()
 
         return view
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        activity?.unregisterReceiver(appsRefreshReceiver)
         activity?.unregisterReceiver(batteryStatusReceiver)
         activity?.unregisterReceiver(notificationsBroadcastReceiver)
+        activity?.unregisterReceiver(setHomeIconsBroadcastReceiver)
     }
 
-    private fun setRecyclerView() {
-        val contextMenuClickListener = object : HomeAppListContextMenuClickListener {
-            override fun onRemoveFromHome(label: String, packageName: String) {
-                activity?.baseContext?.also {
-                    val intent = UnpinAppIntent.create(it, label, packageName)
-                    activity?.startService(intent)
-                }
-            }
-        }
-
-        recyclerView.layoutManager = LinearLayoutManager(context)
-        recyclerView.adapter = HomeAppListAdapter(homeApps, contextMenuClickListener)
-    }
-
-    private fun setNotificationsCounter() {
-        NotificationsService.getNotifications().size.also {
-            notificationsCounterView.text = "$it active notifications"
-            if (it == 0) {
-                notificationsCounterView.visibility = View.GONE
+    private fun setAppsFragment() {
+        activity?.supportFragmentManager?.beginTransaction()?.also {
+            val fragment = if (showOnlyIcons) {
+                HomeIcons()
             } else {
-                notificationsCounterView.visibility = View.VISIBLE
+                HomeList()
             }
+
+            it.replace(R.id.homeAppsFragment, fragment)
+            it.commit()
         }
+    }
+
+    private fun setNotificationsCounterTextView() {
+        notificationsCounterView.text = "$numberOfNotifications active notifications"
+        if (numberOfNotifications == 0) {
+            notificationsCounterView.visibility = View.GONE
+        } else {
+            notificationsCounterView.visibility = View.VISIBLE
+        }
+    }
+
+    private fun setBatteryStatusTextView() {
+        batteryStatusTextView.text = batteryStatusText
     }
 
 }

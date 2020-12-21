@@ -7,6 +7,7 @@ import android.content.IntentFilter
 import android.os.Bundle
 import android.view.Window
 import android.view.WindowManager
+import android.widget.Switch
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -14,11 +15,14 @@ import com.minlauncher.min.adapters.SettingsAppListAdapter
 import com.minlauncher.min.adapters.SettingsAppOnClickListener
 import com.minlauncher.min.intents.MarkAppAsVisibleIntent
 import com.minlauncher.min.intents.RefreshAppsListIntent
+import com.minlauncher.min.intents.SetHomeIconsIntent
 import com.minlauncher.min.intents.UnpinAppIntent
 import com.minlauncher.min.models.SettingsAppListItem
 import com.minlauncher.min.services.AppsService
 
 class SettingsActivity : AppCompatActivity() {
+
+    lateinit var homeIconsSwitch: Switch
 
     private val refreshAppsReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -33,6 +37,11 @@ class SettingsActivity : AppCompatActivity() {
 
         registerReceiver(refreshAppsReceiver, IntentFilter(RefreshAppsListIntent.ACTION))
         setAdapter()
+
+        homeIconsSwitch = findViewById(R.id.settingsHomeIconsSwitch)
+        homeIconsSwitch.setOnCheckedChangeListener { buttonView, isChecked ->
+            sendBroadcast(SetHomeIconsIntent.create(isChecked))
+        }
     }
 
     override fun onDestroy() {
