@@ -39,7 +39,7 @@ class AppsService : Service() {
     override fun onCreate() {
         super.onCreate()
 
-        val key = Constants.SHARED_PREFERENCES_APPS.value
+        val key = Constants.SHARED_PREFERENCES_APP_LIST.VALUE
         val sharedPreferences = getSharedPreferences(key, Context.MODE_PRIVATE)
         preferences = AppInfoSharedPreferences(sharedPreferences)
 

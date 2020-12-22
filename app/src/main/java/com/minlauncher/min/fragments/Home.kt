@@ -12,9 +12,11 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import com.minlauncher.min.R
+import com.minlauncher.min.intents.ChangeIconsOnHomeSettingIntent
+import com.minlauncher.min.intents.IconsOnHomeSettingChangedIntent
 import com.minlauncher.min.intents.RefreshNotificationListIntent
-import com.minlauncher.min.intents.SetHomeIconsIntent
 import com.minlauncher.min.services.NotificationsService
+import com.minlauncher.min.services.SettingsService
 
 class Home : Fragment() {
 
@@ -52,7 +54,7 @@ class Home : Fragment() {
     private val setHomeIconsBroadcastReceiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             intent?.also {
-                showOnlyIcons = it.getBooleanExtra(SetHomeIconsIntent.EXTRA, false)
+                showOnlyIcons = SettingsService.iconsOnHome()
                 if (!paused) {
                     setAppsFragment()
                 }
@@ -68,6 +70,8 @@ class Home : Fragment() {
     override fun onResume() {
         paused = false
         super.onResume()
+
+        showOnlyIcons = SettingsService.iconsOnHome()
 
         setAppsFragment()
         setBatteryStatusTextView()
@@ -86,8 +90,9 @@ class Home : Fragment() {
 
         activity?.registerReceiver(batteryStatusReceiver, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
         activity?.registerReceiver(notificationsBroadcastReceiver, IntentFilter(RefreshNotificationListIntent.ACTION))
-        activity?.registerReceiver(setHomeIconsBroadcastReceiver, IntentFilter(SetHomeIconsIntent.ACTION))
+        activity?.registerReceiver(setHomeIconsBroadcastReceiver, IntentFilter(IconsOnHomeSettingChangedIntent.ACTION))
 
+        showOnlyIcons = SettingsService.iconsOnHome()
         setBatteryStatusTextView()
         setNotificationsCounterTextView()
         setAppsFragment()

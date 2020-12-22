@@ -13,12 +13,13 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.minlauncher.min.adapters.SettingsAppListAdapter
 import com.minlauncher.min.adapters.SettingsAppOnClickListener
+import com.minlauncher.min.intents.ChangeIconsOnHomeSettingIntent
 import com.minlauncher.min.intents.MarkAppAsVisibleIntent
 import com.minlauncher.min.intents.RefreshAppsListIntent
-import com.minlauncher.min.intents.SetHomeIconsIntent
 import com.minlauncher.min.intents.UnpinAppIntent
 import com.minlauncher.min.models.SettingsAppListItem
 import com.minlauncher.min.services.AppsService
+import com.minlauncher.min.services.SettingsService
 
 class SettingsActivity : AppCompatActivity() {
 
@@ -39,8 +40,9 @@ class SettingsActivity : AppCompatActivity() {
         setAdapter()
 
         homeIconsSwitch = findViewById(R.id.settingsHomeIconsSwitch)
+        homeIconsSwitch.isChecked = SettingsService.iconsOnHome()
         homeIconsSwitch.setOnCheckedChangeListener { buttonView, isChecked ->
-            sendBroadcast(SetHomeIconsIntent.create(isChecked))
+            startService(ChangeIconsOnHomeSettingIntent.create(baseContext, isChecked))
         }
     }
 

@@ -9,7 +9,7 @@ import com.minlauncher.min.Constants
 class AppInfoSharedPreferences(private val sharedPreferences: SharedPreferences) {
 
     fun load(): List<AppInfo> {
-        val appsSerialized = sharedPreferences.getString(Constants.SHARED_PREFERENCES_APPS_KEY.value, "[]")
+        val appsSerialized = sharedPreferences.getString(Constants.SHARED_PREFERENCES_APP_LIST_KEY.VALUE, "[]")
         val gson = Gson()
 
         val typeToken = TypeToken.getParameterized(MutableList::class.java, AppInfo::class.java)
@@ -22,7 +22,7 @@ class AppInfoSharedPreferences(private val sharedPreferences: SharedPreferences)
         val typeToken = TypeToken.getParameterized(MutableList::class.java, AppInfo::class.java)
         val json = gson.toJson(apps, typeToken.type)
         sharedPreferences.edit {
-            putString(Constants.SHARED_PREFERENCES_APPS_KEY.value, json)
+            putString(Constants.SHARED_PREFERENCES_APP_LIST_KEY.VALUE, json)
             commit()
         }
     }

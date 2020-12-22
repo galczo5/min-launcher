@@ -16,6 +16,7 @@ import androidx.viewpager2.widget.ViewPager2
 import com.minlauncher.min.adapters.MainActivityScreensAdapter
 import com.minlauncher.min.intents.ReloadAppsListIntent
 import com.minlauncher.min.services.AppsService
+import com.minlauncher.min.services.SettingsService
 
 class MainActivity : AppCompatActivity() {
 
@@ -42,15 +43,15 @@ class MainActivity : AppCompatActivity() {
             startService(it)
         }
 
-        registerReceiver(darkModeOnBroadcastReceiver, IntentFilter(Constants.DARK_MODE_ON.value))
-        registerReceiver(darkModeOffBroadcastReceiver, IntentFilter(Constants.DARK_MODE_OFF.value))
+        registerReceiver(darkModeOnBroadcastReceiver, IntentFilter(Constants.DARK_MODE_ON.VALUE))
+        registerReceiver(darkModeOffBroadcastReceiver, IntentFilter(Constants.DARK_MODE_OFF.VALUE))
 
         val sharedPreferences = getSharedPreferences(
-            Constants.DARK_MODE_SHARED_PREFERENCES_NAME.value,
+            Constants.DARK_MODE_SHARED_PREFERENCES_NAME.VALUE,
             Context.MODE_PRIVATE
         )
 
-        val darkModeOn = sharedPreferences.getInt(Constants.DARK_MODE_SHARED_PREFERENCES_KEY.value, MODE_NIGHT_NO)
+        val darkModeOn = sharedPreferences.getInt(Constants.DARK_MODE_SHARED_PREFERENCES_KEY.VALUE, MODE_NIGHT_NO)
         AppCompatDelegate.setDefaultNightMode(darkModeOn)
 
         val viewPager = findViewById<ViewPager2>(R.id.viewPager)
@@ -68,6 +69,7 @@ class MainActivity : AppCompatActivity() {
         })
 
         startService(Intent(baseContext, AppsService::class.java))
+        startService(Intent(baseContext, SettingsService::class.java))
     }
 
     override fun onDestroy() {
@@ -78,8 +80,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun saveDarkMode(mode: Int) {
-        getSharedPreferences(Constants.DARK_MODE_SHARED_PREFERENCES_NAME.value, Context.MODE_PRIVATE).edit {
-            putInt(Constants.DARK_MODE_SHARED_PREFERENCES_KEY.value, mode)
+        getSharedPreferences(Constants.DARK_MODE_SHARED_PREFERENCES_NAME.VALUE, Context.MODE_PRIVATE).edit {
+            putInt(Constants.DARK_MODE_SHARED_PREFERENCES_KEY.VALUE, mode)
             commit()
         }
     }
