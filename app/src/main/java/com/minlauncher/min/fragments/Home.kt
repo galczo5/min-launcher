@@ -95,7 +95,6 @@ class Home : Fragment() {
         showOnlyIcons = SettingsService.iconsOnHome()
         setBatteryStatusTextView()
         setNotificationsCounterTextView()
-        setAppsFragment()
 
         return view
     }

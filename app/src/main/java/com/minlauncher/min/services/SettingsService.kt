@@ -8,10 +8,7 @@ import android.os.IBinder
 import androidx.core.content.edit
 import com.minlauncher.min.Constants
 import com.minlauncher.min.Settings
-import com.minlauncher.min.intents.ChangeIconsOnHomeSettingIntent
-import com.minlauncher.min.intents.ChangeHideIconsSettingIntent
-import com.minlauncher.min.intents.IconsHideSettingChangedIntent
-import com.minlauncher.min.intents.IconsOnHomeSettingChangedIntent
+import com.minlauncher.min.intents.*
 
 class SettingsService : Service() {
 
@@ -19,12 +16,20 @@ class SettingsService : Service() {
 
         private lateinit var sharedPreferences: SharedPreferences
 
+        fun ready(): Boolean {
+            return this::sharedPreferences.isInitialized
+        }
+
         fun iconsOnHome(): Boolean {
             return sharedPreferences.getBoolean(getKey(Settings.ICONS_ON_HOME_SCREEN.NAME), false)
         }
 
         fun hideIcons(): Boolean {
             return sharedPreferences.getBoolean(getKey(Settings.HIDE_ICONS.NAME), false)
+        }
+
+        fun hideNotifications(): Boolean {
+            return sharedPreferences.getBoolean(getKey(Settings.HIDE_NOTIFICATIONS.NAME), false)
         }
 
         private fun getKey(key: String): String {
@@ -36,6 +41,10 @@ class SettingsService : Service() {
     override fun onCreate() {
         super.onCreate()
         sharedPreferences = getSharedPreferences(Constants.SHARED_PREFERENCES_SETTINGS.VALUE, Context.MODE_PRIVATE)
+
+        sendBroadcast(IconsOnHomeSettingChangedIntent.create(baseContext, iconsOnHome()))
+        sendBroadcast(IconsHideSettingChangedIntent.create(baseContext, hideIcons()))
+        sendBroadcast(IconsHideSettingChangedIntent.create(baseContext, hideNotifications()))
     }
 
     override fun onBind(intent: Intent): IBinder? {
@@ -56,11 +65,17 @@ class SettingsService : Service() {
                     setBoolean(Settings.HIDE_ICONS.NAME, value)
                     sendBroadcast(IconsHideSettingChangedIntent.create(baseContext, value))
                 }
+                ChangeHideNotificationsSettingIntent.ACTION -> {
+                    val value = intent.getBooleanExtra(ChangeHideNotificationsSettingIntent.EXTRA_KEY, false)
+                    setBoolean(Settings.HIDE_NOTIFICATIONS.NAME, value)
+                    sendBroadcast(IconsHideSettingChangedIntent.create(baseContext, value))
+                }
             }
         }
 
         return super.onStartCommand(intent, flags, startId)
     }
+
 
     private fun setBoolean(key: String, value: Boolean) {
         sharedPreferences.edit {

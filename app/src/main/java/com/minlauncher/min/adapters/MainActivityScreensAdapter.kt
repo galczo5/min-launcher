@@ -8,22 +8,57 @@ import com.minlauncher.min.fragments.AppList
 import com.minlauncher.min.fragments.Home
 import com.minlauncher.min.fragments.NotificationsWrapper
 
-class MainActivityScreensAdapter(fragment: FragmentManager, lifecycle: Lifecycle) : FragmentStateAdapter(fragment, lifecycle) {
+class MainActivityScreensAdapter(val fragmentManager: FragmentManager,
+                                 lifecycle: Lifecycle,
+                                 var hideNotifications: Boolean,
+                                 var hideHome: Boolean) : FragmentStateAdapter(fragmentManager, lifecycle) {
+
+    private var size: Int = 0
+    private val list = mutableListOf<Fragment>()
+
+    init {
+        size = 5;
+
+        if (hideNotifications) {
+            size -= 1
+        } else {
+            list.add(NotificationsWrapper())
+        }
+
+        if (hideHome) {
+            size -= 1
+        } else {
+            list.add(Home())
+        }
+
+        list.add(AppList())
+    }
+
+    fun clear() {
+        for (i in list.toList().indices) {
+            val transaction = fragmentManager.beginTransaction()
+            if (i < list.size) {
+                val fragment = list[i]
+                transaction.remove(fragment).commit()
+                list.clear()
+            }
+        }
+    }
 
     override fun getItemCount(): Int {
-        return 5
+        return size
     }
 
     override fun createFragment(position: Int): Fragment {
-        val appList = AppList()
-        val notifications = NotificationsWrapper()
-        val home = Home()
-
         return when (position) {
-            1 -> { notifications }
-            2 -> { home }
-            3 -> { appList }
-            else -> { Fragment() }
+            0 -> { Fragment() }
+            else -> {
+                if (position - 1 < list.size) {
+                    list[position - 1]
+                } else {
+                    Fragment()
+                }
+            }
         }
     }
 
