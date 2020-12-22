@@ -5,8 +5,9 @@ import android.graphics.drawable.Drawable
 
 class AppListItem(
         val label: String,
-        val packageName: String?,
+        val packageName: String,
         val icon: Drawable,
         val separator: Boolean,
-        val index: Int) {
+        val index: Int,
+        val iconsVisible: Boolean) {
 }

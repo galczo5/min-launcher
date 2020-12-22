@@ -17,16 +17,16 @@ class AppListAdapter(val apps: List<AppListItem>,
     : RecyclerViewFastScroller.BubbleTextGetter, RecyclerView.Adapter<AppListAdapter.ViewHolder>() {
 
     inner class ViewHolder(val view: View, val viewType: Int) : RecyclerView.ViewHolder(view) {
-        var textView: TextView? = null
-        var imageView: ImageView? = null
-        var separatorLabelView: TextView? = null
+        lateinit var textView: TextView
+        lateinit var imageView: ImageView
+        lateinit var separatorLabelView: TextView
 
         init {
             if (viewType == 0) {
-                textView = view.findViewById<TextView>(R.id.appLabel)
-                imageView = view.findViewById<ImageView>(R.id.appIcon)
+                textView = view.findViewById(R.id.appLabel)
+                imageView = view.findViewById(R.id.appIcon)
             } else {
-                separatorLabelView = view.findViewById<TextView>(R.id.appSeparatorLabel)
+                separatorLabelView = view.findViewById(R.id.appSeparatorLabel)
             }
         }
     }
@@ -56,8 +56,14 @@ class AppListAdapter(val apps: List<AppListItem>,
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = apps[position]
         if (holder.viewType == 0) {
-            holder.textView?.text = item.label
-            holder.imageView?.setImageDrawable(item.icon)
+            holder.textView.text = item.label
+            holder.imageView.visibility = if (item.iconsVisible) {
+                View.VISIBLE
+            } else {
+                View.GONE
+            }
+
+            holder.imageView.setImageDrawable(item.icon)
 
             holder.view.setOnClickListener{ v ->
                 onClickListener.onClick(position)
@@ -66,24 +72,19 @@ class AppListAdapter(val apps: List<AppListItem>,
             holder.view.setOnCreateContextMenuListener { menu, v, menuInfo ->
                 menu.add(ContextMenuGroup.ADD_TO_HOME.value, item.index, 0, "Add to home screen")
                     .setOnMenuItemClickListener {
-                        item.packageName?.let { packageName ->
-                            onContextMenuClickListener.onAddToHome(item.label, packageName)
-                        }
-
+                        onContextMenuClickListener.onAddToHome(item.label, item.packageName)
                         true
                     }
 
                 menu.add(ContextMenuGroup.HIDE_FROM_LIST.value, item.index, 0, "Hide app")
                     .setOnMenuItemClickListener {
-                        item.packageName?.let { packageName ->
-                            onContextMenuClickListener.onHide(item.label, packageName)
-                        }
+                        onContextMenuClickListener.onHide(item.label, item.packageName)
                         true
                     }
             }
 
         } else {
-            holder.separatorLabelView?.text = item.label
+            holder.separatorLabelView.text = item.label
         }
     }
 
@@ -92,7 +93,7 @@ class AppListAdapter(val apps: List<AppListItem>,
             return null;
 
         val name = apps[pos].label
-        if (name == null || name.length < 1)
+        if (name.isEmpty())
             return null;
 
         return name.substring(0, 1);

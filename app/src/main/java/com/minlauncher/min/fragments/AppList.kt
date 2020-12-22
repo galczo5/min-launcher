@@ -27,6 +27,7 @@ import com.minlauncher.min.adapters.AppListOnClickListener
 import com.minlauncher.min.intents.*
 import com.minlauncher.min.models.*
 import com.minlauncher.min.services.AppsService
+import com.minlauncher.min.services.SettingsService
 import com.viethoa.RecyclerViewFastScroller
 import com.viethoa.models.AlphabetItem
 
@@ -34,6 +35,7 @@ class AppList : Fragment() {
 
     var apps = listOf<AppInfo>()
     var lastUsedApps = listOf<AppInfo>()
+    var hideIcons: Boolean = false;
 
     lateinit var settingsCog: ImageView
     lateinit var swipeRefreshLayout: SwipeRefreshLayout
@@ -47,7 +49,15 @@ class AppList : Fragment() {
         override fun onReceive(context: Context?, intent: Intent?) {
             apps = AppsService.allApps()
             lastUsedApps = AppsService.lastUsed()
+            if (!paused) {
+                setRecyclerView()
+            }
+        }
+    }
 
+    private val hideIconsSettingBroadcastReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            hideIcons = SettingsService.hideIcons()
             if (!paused) {
                 setRecyclerView()
             }
@@ -72,8 +82,12 @@ class AppList : Fragment() {
         }
 
         activity?.registerReceiver(appsRefreshReceivers, IntentFilter(RefreshAppsListIntent.ACTION))
+        activity?.registerReceiver(hideIconsSettingBroadcastReceiver, IntentFilter(IconsHideSettingChangedIntent.ACTION))
 
-        reloadList()
+        apps = AppsService.allApps()
+        if (apps.isEmpty()) {
+            reloadList()
+        }
 
         setSettingsCog()
         setSwipeRefresh()
@@ -85,6 +99,7 @@ class AppList : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         activity?.unregisterReceiver(appsRefreshReceivers)
+        activity?.unregisterReceiver(hideIconsSettingBroadcastReceiver)
     }
 
     override fun onPause() {
@@ -95,6 +110,8 @@ class AppList : Fragment() {
     override fun onResume() {
         paused = false
         super.onResume()
+
+        hideIcons = SettingsService.hideIcons()
         setRecyclerView()
     }
 
@@ -143,15 +160,13 @@ class AppList : Fragment() {
         val clickListener = object : AppListOnClickListener {
             override fun onClick(position: Int) {
                 val item = items[position]
-                item.packageName?.let {
-                    baseContext?.also {
-                        val intent = SetLastUseDateIntent.create(it, item.label, item.packageName)
-                        activity?.startService(intent)
-                    }
-
-                    val intent = packageManager.getLaunchIntentForPackage(item.packageName)
-                    context?.startActivity(intent)
+                baseContext?.also {
+                    val intent = SetLastUseDateIntent.create(it, item.label, item.packageName)
+                    activity?.startService(intent)
                 }
+
+                val intent = packageManager.getLaunchIntentForPackage(item.packageName)
+                context?.startActivity(intent)
             }
         }
 
@@ -202,12 +217,12 @@ class AppList : Fragment() {
         val label = appInfo.label
 
         val icon = packageManager.getApplicationIcon(packageName)
-        return AppListItem(label, packageName, icon, false, index)
+        return AppListItem(label, packageName, icon, false, index, !hideIcons)
     }
 
     private fun getSeparator(labelFirstLetter: String, index: Int): AppListItem {
         val separatorLabel = if (labelFirstLetter.isDigitsOnly()) "0-9" else labelFirstLetter
-        return AppListItem(separatorLabel, null, ShapeDrawable(), true, index)
+        return AppListItem(separatorLabel, "", ShapeDrawable(), true, index, false)
     }
 
     private fun getAlphabet(items: List<AppListItem>): List<AlphabetItem> {

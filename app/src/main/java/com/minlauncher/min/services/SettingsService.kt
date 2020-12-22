@@ -9,6 +9,8 @@ import androidx.core.content.edit
 import com.minlauncher.min.Constants
 import com.minlauncher.min.Settings
 import com.minlauncher.min.intents.ChangeIconsOnHomeSettingIntent
+import com.minlauncher.min.intents.ChangeHideIconsSettingIntent
+import com.minlauncher.min.intents.IconsHideSettingChangedIntent
 import com.minlauncher.min.intents.IconsOnHomeSettingChangedIntent
 
 class SettingsService : Service() {
@@ -19,6 +21,10 @@ class SettingsService : Service() {
 
         fun iconsOnHome(): Boolean {
             return sharedPreferences.getBoolean(getKey(Settings.ICONS_ON_HOME_SCREEN.NAME), false)
+        }
+
+        fun hideIcons(): Boolean {
+            return sharedPreferences.getBoolean(getKey(Settings.HIDE_ICONS.NAME), false)
         }
 
         private fun getKey(key: String): String {
@@ -44,6 +50,11 @@ class SettingsService : Service() {
                     val value = intent.getBooleanExtra(ChangeIconsOnHomeSettingIntent.EXTRA_KEY, false)
                     setBoolean(Settings.ICONS_ON_HOME_SCREEN.NAME, value)
                     sendBroadcast(IconsOnHomeSettingChangedIntent.create(baseContext, value))
+                }
+                ChangeHideIconsSettingIntent.ACTION -> {
+                    val value = intent.getBooleanExtra(ChangeHideIconsSettingIntent.EXTRA_KEY, false)
+                    setBoolean(Settings.HIDE_ICONS.NAME, value)
+                    sendBroadcast(IconsHideSettingChangedIntent.create(baseContext, value))
                 }
             }
         }

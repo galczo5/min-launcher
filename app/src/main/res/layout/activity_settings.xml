@@ -118,7 +118,7 @@
             app:layout_constraintTop_toBottomOf="@+id/switch2" />
 
         <Switch
-            android:id="@+id/switch4"
+            android:id="@+id/settingsHideIconsSwitch"
             android:layout_width="match_parent"
             android:layout_height="@dimen/row_height"
             android:text="Hide icons"
@@ -141,7 +141,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/switch4" />
+            app:layout_constraintTop_toBottomOf="@+id/settingsHideIconsSwitch" />
 
         <Space
             android:layout_width="wrap_content"
