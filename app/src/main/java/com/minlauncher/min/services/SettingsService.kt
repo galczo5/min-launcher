@@ -36,6 +36,10 @@ class SettingsService : Service() {
             return sharedPreferences.getBoolean(getKey(Settings.HIDE_HOME.NAME), false)
         }
 
+        fun lastUsedAppsHidden(): Boolean {
+            return sharedPreferences.getBoolean(getKey(Settings.HIDE_LAST_USED_APPS.NAME), false)
+        }
+
         private fun getKey(key: String): String {
             return Constants.SHARED_PREFERENCES_SETTINGS_KEY_PREFIX.VALUE + "_" + key
         }
@@ -77,7 +81,12 @@ class SettingsService : Service() {
                 ChangeHideHomeSettingIntent.ACTION -> {
                     val value = intent.getBooleanExtra(ChangeHideHomeSettingIntent.EXTRA_KEY, false)
                     setBoolean(Settings.HIDE_HOME.NAME, value)
-                    sendBroadcast(HomeHideChangedIntent.create(baseContext, value))
+                    sendBroadcast(HomeHideSettingChangedIntent.create(baseContext, value))
+                }
+                ChangeHideLastUsedAppsSettingIntent.ACTION -> {
+                    val value = intent.getBooleanExtra(ChangeHideLastUsedAppsSettingIntent.EXTRA_KEY, false)
+                    setBoolean(Settings.HIDE_LAST_USED_APPS.NAME, value)
+                    sendBroadcast(LastUsedAppsHideSettingChangedIntent.create(baseContext, value))
                 }
             }
         }

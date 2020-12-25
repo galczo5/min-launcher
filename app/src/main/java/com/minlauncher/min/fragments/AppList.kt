@@ -35,7 +35,8 @@ class AppList : Fragment() {
 
     var apps = listOf<AppInfo>()
     var lastUsedApps = listOf<AppInfo>()
-    var hideIcons: Boolean = false;
+    var hideIcons: Boolean = false
+    var hideLastUsedApps: Boolean = false
 
     lateinit var settingsCog: ImageView
     lateinit var swipeRefreshLayout: SwipeRefreshLayout
@@ -64,6 +65,15 @@ class AppList : Fragment() {
         }
     }
 
+    private val hideLastUsedAppsBroadcastReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            hideLastUsedApps = SettingsService.lastUsedAppsHidden()
+            if (!paused) {
+                setRecyclerView()
+            }
+        }
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -83,6 +93,7 @@ class AppList : Fragment() {
 
         activity?.registerReceiver(appsRefreshReceivers, IntentFilter(RefreshAppsListIntent.ACTION))
         activity?.registerReceiver(hideIconsSettingBroadcastReceiver, IntentFilter(IconsHideSettingChangedIntent.ACTION))
+        activity?.registerReceiver(hideLastUsedAppsBroadcastReceiver, IntentFilter(LastUsedAppsHideSettingChangedIntent.ACTION))
 
         setSettingsCog()
         setSwipeRefresh()
@@ -95,6 +106,7 @@ class AppList : Fragment() {
         super.onDestroyView()
         activity?.unregisterReceiver(appsRefreshReceivers)
         activity?.unregisterReceiver(hideIconsSettingBroadcastReceiver)
+        activity?.unregisterReceiver(hideLastUsedAppsBroadcastReceiver)
     }
 
     override fun onPause() {
@@ -113,6 +125,7 @@ class AppList : Fragment() {
             reloadList()
         }
 
+        hideLastUsedApps = SettingsService.lastUsedAppsHidden()
         hideIcons = SettingsService.iconsHidden()
         setRecyclerView()
     }
@@ -197,8 +210,11 @@ class AppList : Fragment() {
     private fun getItems(): List<AppListItem> {
         var headingLetter: String? = null
         val items = mutableListOf<AppListItem>()
-        lastUsedApps.forEachIndexed { index, appInfo ->
-            items.add(getAppListItem(appInfo, index))
+
+        if (!hideLastUsedApps) {
+            lastUsedApps.forEachIndexed { index, appInfo ->
+                items.add(getAppListItem(appInfo, index))
+            }
         }
 
         apps.forEachIndexed { index, appInfo ->

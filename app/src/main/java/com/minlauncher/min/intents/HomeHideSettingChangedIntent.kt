@@ -4,7 +4,7 @@ import android.content.Context
 import android.content.Intent
 import com.minlauncher.min.services.SettingsService
 
-class HomeHideChangedIntent {
+class HomeHideSettingChangedIntent {
 
     companion object {
         const val EXTRA_KEY = "value";

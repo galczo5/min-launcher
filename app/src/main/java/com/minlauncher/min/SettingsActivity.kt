@@ -24,6 +24,7 @@ class SettingsActivity : AppCompatActivity() {
     lateinit var hideIconsSwitch: Switch
     lateinit var hideNotificationsSwitch: Switch
     lateinit var hideHomeSwitch: Switch
+    lateinit var hideLastUsedAppsSwitch: Switch
 
     private val refreshAppsReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -61,6 +62,12 @@ class SettingsActivity : AppCompatActivity() {
         hideHomeSwitch.isChecked = SettingsService.homeHidden()
         hideHomeSwitch.setOnCheckedChangeListener { _, isChecked ->
             startService(ChangeHideHomeSettingIntent.create(baseContext, isChecked))
+        }
+
+        hideLastUsedAppsSwitch = findViewById(R.id.settingsHideLastUsedApps)
+        hideLastUsedAppsSwitch.isChecked = SettingsService.lastUsedAppsHidden()
+        hideLastUsedAppsSwitch.setOnCheckedChangeListener { _, isChecked ->
+            startService(ChangeHideLastUsedAppsSettingIntent.create(baseContext, isChecked))
         }
     }
 

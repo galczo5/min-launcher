@@ -15,6 +15,7 @@ import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES
 import androidx.core.content.edit
 import androidx.viewpager2.widget.ViewPager2
 import com.minlauncher.min.adapters.MainActivityScreensAdapter
+import com.minlauncher.min.intents.HomeHideSettingChangedIntent
 import com.minlauncher.min.intents.NotificationsHideChangedIntent
 import com.minlauncher.min.intents.ReloadAppsListIntent
 import com.minlauncher.min.services.AppsService
@@ -74,6 +75,7 @@ class MainActivity : AppCompatActivity() {
         registerReceiver(darkModeOnBroadcastReceiver, IntentFilter(Constants.DARK_MODE_ON.VALUE))
         registerReceiver(darkModeOffBroadcastReceiver, IntentFilter(Constants.DARK_MODE_OFF.VALUE))
         registerReceiver(hideNotificationsBroadcastReceiver, IntentFilter(NotificationsHideChangedIntent.ACTION))
+        registerReceiver(hideHomeBroadcastReceiver, IntentFilter(HomeHideSettingChangedIntent.ACTION))
 
         val sharedPreferences = getSharedPreferences(
             Constants.DARK_MODE_SHARED_PREFERENCES_NAME.VALUE,
@@ -88,6 +90,15 @@ class MainActivity : AppCompatActivity() {
 
         startService(Intent(baseContext, AppsService::class.java))
         startService(Intent(baseContext, SettingsService::class.java))
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        unregisterReceiver(darkModeOnBroadcastReceiver)
+        unregisterReceiver(darkModeOffBroadcastReceiver)
+        unregisterReceiver(hideNotificationsBroadcastReceiver)
+        unregisterReceiver(hideHomeBroadcastReceiver)
+        stopService(Intent(baseContext, AppsService::class.java))
     }
 
     override fun onPause() {
@@ -109,14 +120,6 @@ class MainActivity : AppCompatActivity() {
 
             Log.d("SETTING HIDE NOTIFICATIONS", hideNotifications.toString())
         }
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        unregisterReceiver(darkModeOnBroadcastReceiver)
-        unregisterReceiver(darkModeOffBroadcastReceiver)
-        unregisterReceiver(hideNotificationsBroadcastReceiver)
-        stopService(Intent(baseContext, AppsService::class.java))
     }
 
     private fun saveDarkMode(mode: Int) {
