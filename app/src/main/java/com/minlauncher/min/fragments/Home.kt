@@ -12,7 +12,6 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import com.minlauncher.min.R
-import com.minlauncher.min.intents.ChangeIconsOnHomeSettingIntent
 import com.minlauncher.min.intents.IconsOnHomeSettingChangedIntent
 import com.minlauncher.min.intents.RefreshNotificationListIntent
 import com.minlauncher.min.services.NotificationsService
@@ -44,7 +43,6 @@ class Home : Fragment() {
     private val notificationsBroadcastReceiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             numberOfNotifications = NotificationsService.getNotifications().size
-
             if (!paused) {
                 setNotificationsCounterTextView()
             }
@@ -62,22 +60,6 @@ class Home : Fragment() {
         }
     }
 
-    override fun onPause() {
-        paused = true
-        super.onPause()
-    }
-
-    override fun onResume() {
-        paused = false
-        super.onResume()
-
-        showOnlyIcons = SettingsService.iconsOnHome()
-
-        setAppsFragment()
-        setBatteryStatusTextView()
-        setNotificationsCounterTextView()
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -92,11 +74,23 @@ class Home : Fragment() {
         activity?.registerReceiver(notificationsBroadcastReceiver, IntentFilter(RefreshNotificationListIntent.ACTION))
         activity?.registerReceiver(setHomeIconsBroadcastReceiver, IntentFilter(IconsOnHomeSettingChangedIntent.ACTION))
 
+        return view
+    }
+
+    override fun onPause() {
+        paused = true
+        super.onPause()
+    }
+
+    override fun onResume() {
+        paused = false
+        super.onResume()
+
         showOnlyIcons = SettingsService.iconsOnHome()
+
+        setAppsFragment()
         setBatteryStatusTextView()
         setNotificationsCounterTextView()
-
-        return view
     }
 
     override fun onDestroyView() {
@@ -131,5 +125,4 @@ class Home : Fragment() {
     private fun setBatteryStatusTextView() {
         batteryStatusTextView.text = batteryStatusText
     }
-
 }

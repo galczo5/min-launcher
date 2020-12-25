@@ -22,13 +22,15 @@ import com.minlauncher.min.services.NotificationsService
 
 class Notifications : Fragment() {
 
-    lateinit var recyclerView: RecyclerView
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var packageManager: PackageManager
 
     private var paused: Boolean = true
     private var notifications = listOf<AppNotification>()
+
     private val notificationsReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-            notifications = NotificationsService.getNotifications()
+            getNotifications()
             setRecyclerView()
         }
     }
@@ -38,11 +40,10 @@ class Notifications : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_notifications, container, false)
-        recyclerView = view.findViewById(R.id.notificationsRecyclerView)
-        notifications = NotificationsService.getNotifications()
 
+        activity?.packageManager?.also { packageManager = it }
+        recyclerView = view.findViewById(R.id.notificationsRecyclerView)
         activity?.registerReceiver(notificationsReceiver, IntentFilter(RefreshNotificationListIntent.ACTION))
-        setRecyclerView()
 
         return view
     }
@@ -60,16 +61,16 @@ class Notifications : Fragment() {
     override fun onResume() {
         paused = false
         super.onResume()
+        getNotifications()
         setRecyclerView()
     }
 
-    private fun setRecyclerView() {
-        var items = listOf<AppNotificationListItem>()
+    private fun getNotifications() {
+        notifications = NotificationsService.getNotifications()
+    }
 
-        val packageManager = activity?.packageManager
-        packageManager?.also {
-            items = getItems(it)
-        }
+    private fun setRecyclerView() {
+        val items = getItems()
 
         recyclerView.layoutManager = LinearLayoutManager(context)
         recyclerView.adapter = NotificationListAdapter(items, object : NotificationListClickListener {
@@ -79,7 +80,7 @@ class Notifications : Fragment() {
         })
     }
 
-    private fun getItems(packageManager: PackageManager): List<AppNotificationListItem> {
+    private fun getItems(): List<AppNotificationListItem> {
         return notifications.map {
             val icon = packageManager.getApplicationIcon(it.packageName)
             val applicationInfo = packageManager.getApplicationInfo(it.packageName, 0)

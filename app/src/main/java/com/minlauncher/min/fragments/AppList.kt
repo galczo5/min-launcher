@@ -84,11 +84,6 @@ class AppList : Fragment() {
         activity?.registerReceiver(appsRefreshReceivers, IntentFilter(RefreshAppsListIntent.ACTION))
         activity?.registerReceiver(hideIconsSettingBroadcastReceiver, IntentFilter(IconsHideSettingChangedIntent.ACTION))
 
-        apps = AppsService.allApps()
-        if (apps.isEmpty()) {
-            reloadList()
-        }
-
         setSettingsCog()
         setSwipeRefresh()
         setDarkModeSwitch()
@@ -110,6 +105,13 @@ class AppList : Fragment() {
     override fun onResume() {
         paused = false
         super.onResume()
+
+        apps = AppsService.allApps()
+        lastUsedApps = AppsService.lastUsed()
+
+        if (apps.isEmpty()) {
+            reloadList()
+        }
 
         hideIcons = SettingsService.hideIcons()
         setRecyclerView()

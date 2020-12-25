@@ -20,7 +20,7 @@ class NotificationsWrapper : Fragment() {
 
     private val notificationBroadcastReceiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-            notificationsCount = NotificationsService.getNotifications().size
+            getNotificationCount()
             if (!paused) {
                 setNotificationsFragment()
             }
@@ -44,12 +44,17 @@ class NotificationsWrapper : Fragment() {
     override fun onResume() {
         super.onResume()
         paused = false
+        getNotificationCount()
         setNotificationsFragment()
     }
 
     override fun onPause() {
         super.onPause()
         paused = true
+    }
+
+    private fun getNotificationCount() {
+        notificationsCount = NotificationsService.getNotifications().size
     }
 
     private fun setNotificationsFragment() {

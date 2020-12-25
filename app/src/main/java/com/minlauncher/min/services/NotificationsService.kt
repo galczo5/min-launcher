@@ -15,10 +15,10 @@ class NotificationsService : NotificationListenerService() {
                 listOf()
             } else {
                 instance!!.activeNotifications
-                    .distinctBy { it.id }
                     .map {
-                        val title = it.notification.extras.getCharSequence("android.title").toString()
-                        val text = it.notification.extras.getCharSequence("android.text").toString()
+                        val extras = it.notification.extras
+                        val title = extras.getCharSequence("android.title").toString()
+                        val text = extras.getCharSequence("android.text").toString()
                         AppNotification(
                             it.id,
                             it.tag,
@@ -29,6 +29,7 @@ class NotificationsService : NotificationListenerService() {
                             it.postTime
                         )
                     }
+                    .distinctBy { it.title + it.desc }
             }
         }
     }

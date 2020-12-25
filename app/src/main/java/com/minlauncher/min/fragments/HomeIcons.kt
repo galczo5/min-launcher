@@ -30,7 +30,7 @@ class HomeIcons : Fragment() {
 
     private val appsRefreshReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-            homeApps = AppsService.homeApps()
+            getHomeApps()
             if (!paused) {
                 setRecyclerView()
             }
@@ -42,16 +42,14 @@ class HomeIcons : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_home_icons, container, false)
-
         activity?.packageManager?.also { packageManager = it }
         activity?.registerReceiver(appsRefreshReceiver, IntentFilter(RefreshAppsListIntent.ACTION))
-
-        homeApps = AppsService.homeApps()
         recyclerView = view.findViewById(R.id.homeAppGrid)
-
-        setRecyclerView()
-
         return view
+    }
+
+    private fun getHomeApps() {
+        homeApps = AppsService.homeApps()
     }
 
     override fun onDestroyView() {
@@ -67,6 +65,7 @@ class HomeIcons : Fragment() {
     override fun onResume() {
         paused = false
         super.onResume()
+        getHomeApps()
         setRecyclerView()
     }
 
@@ -87,11 +86,8 @@ class HomeIcons : Fragment() {
 
     private fun getItems(): List<HomeGridItem> {
         return homeApps.map {
-            HomeGridItem(
-                it.label,
-                it.packageName,
-                packageManager.getApplicationIcon(it.packageName)
-            )
+            val icon = packageManager.getApplicationIcon(it.packageName)
+            HomeGridItem(it.label, it.packageName, icon)
         }
     }
 }

@@ -23,11 +23,11 @@ class HomeList : Fragment() {
 
     private var paused: Boolean = true
     private var homeApps = listOf<AppInfo>()
-    lateinit var recyclerView: RecyclerView
+    private lateinit var recyclerView: RecyclerView
 
     private val appsRefreshReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-            homeApps = AppsService.homeApps()
+            getHomeApps()
             if (!paused) {
                 setRecyclerView()
             }
@@ -40,11 +40,7 @@ class HomeList : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_home_list, container, false)
         recyclerView = view.findViewById(R.id.homeAppList)
-        homeApps = AppsService.homeApps()
-
-        setRecyclerView()
         activity?.registerReceiver(appsRefreshReceiver, IntentFilter(RefreshAppsListIntent.ACTION))
-
         return view
     }
 
@@ -61,7 +57,12 @@ class HomeList : Fragment() {
     override fun onResume() {
         paused = false
         super.onResume()
+        getHomeApps()
         setRecyclerView()
+    }
+
+    private fun getHomeApps() {
+        homeApps = AppsService.homeApps()
     }
 
     private fun setRecyclerView() {
