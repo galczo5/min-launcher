@@ -20,16 +20,20 @@ class SettingsService : Service() {
             return this::sharedPreferences.isInitialized
         }
 
-        fun iconsOnHome(): Boolean {
+        fun homeIcons(): Boolean {
             return sharedPreferences.getBoolean(getKey(Settings.ICONS_ON_HOME_SCREEN.NAME), false)
         }
 
-        fun hideIcons(): Boolean {
+        fun iconsHidden(): Boolean {
             return sharedPreferences.getBoolean(getKey(Settings.HIDE_ICONS.NAME), false)
         }
 
-        fun hideNotifications(): Boolean {
+        fun notificationsHidden(): Boolean {
             return sharedPreferences.getBoolean(getKey(Settings.HIDE_NOTIFICATIONS.NAME), false)
+        }
+
+        fun homeHidden(): Boolean {
+            return sharedPreferences.getBoolean(getKey(Settings.HIDE_HOME.NAME), false)
         }
 
         private fun getKey(key: String): String {
@@ -42,9 +46,9 @@ class SettingsService : Service() {
         super.onCreate()
         sharedPreferences = getSharedPreferences(Constants.SHARED_PREFERENCES_SETTINGS.VALUE, Context.MODE_PRIVATE)
 
-        sendBroadcast(IconsOnHomeSettingChangedIntent.create(baseContext, iconsOnHome()))
-        sendBroadcast(IconsHideSettingChangedIntent.create(baseContext, hideIcons()))
-        sendBroadcast(IconsHideSettingChangedIntent.create(baseContext, hideNotifications()))
+        sendBroadcast(IconsOnHomeSettingChangedIntent.create(baseContext, homeIcons()))
+        sendBroadcast(IconsHideSettingChangedIntent.create(baseContext, iconsHidden()))
+        sendBroadcast(IconsHideSettingChangedIntent.create(baseContext, notificationsHidden()))
     }
 
     override fun onBind(intent: Intent): IBinder? {
@@ -69,6 +73,11 @@ class SettingsService : Service() {
                     val value = intent.getBooleanExtra(ChangeHideNotificationsSettingIntent.EXTRA_KEY, false)
                     setBoolean(Settings.HIDE_NOTIFICATIONS.NAME, value)
                     sendBroadcast(IconsHideSettingChangedIntent.create(baseContext, value))
+                }
+                ChangeHideHomeSettingIntent.ACTION -> {
+                    val value = intent.getBooleanExtra(ChangeHideHomeSettingIntent.EXTRA_KEY, false)
+                    setBoolean(Settings.HIDE_HOME.NAME, value)
+                    sendBroadcast(HomeHideChangedIntent.create(baseContext, value))
                 }
             }
         }

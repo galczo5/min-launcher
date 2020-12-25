@@ -23,6 +23,7 @@ class SettingsActivity : AppCompatActivity() {
     lateinit var homeIconsSwitch: Switch
     lateinit var hideIconsSwitch: Switch
     lateinit var hideNotificationsSwitch: Switch
+    lateinit var hideHomeSwitch: Switch
 
     private val refreshAppsReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -39,21 +40,27 @@ class SettingsActivity : AppCompatActivity() {
         setAdapter()
 
         homeIconsSwitch = findViewById(R.id.settingsHomeIconsSwitch)
-        homeIconsSwitch.isChecked = SettingsService.iconsOnHome()
+        homeIconsSwitch.isChecked = SettingsService.homeIcons()
         homeIconsSwitch.setOnCheckedChangeListener { _, isChecked ->
             startService(ChangeIconsOnHomeSettingIntent.create(baseContext, isChecked))
         }
 
         hideIconsSwitch = findViewById(R.id.settingsHideIconsSwitch)
-        hideIconsSwitch.isChecked = SettingsService.hideIcons()
+        hideIconsSwitch.isChecked = SettingsService.iconsHidden()
         hideIconsSwitch.setOnCheckedChangeListener { _, isChecked ->
             startService(ChangeHideIconsSettingIntent.create(baseContext, isChecked))
         }
 
         hideNotificationsSwitch = findViewById(R.id.settingsHideNotificationsSwitch)
-        hideNotificationsSwitch.isChecked = SettingsService.hideNotifications()
+        hideNotificationsSwitch.isChecked = SettingsService.notificationsHidden()
         hideNotificationsSwitch.setOnCheckedChangeListener { _, isChecked ->
             startService(ChangeHideNotificationsSettingIntent.create(baseContext, isChecked))
+        }
+
+        hideHomeSwitch = findViewById(R.id.settingsHideHomeSwitch)
+        hideHomeSwitch.isChecked = SettingsService.homeHidden()
+        hideHomeSwitch.setOnCheckedChangeListener { _, isChecked ->
+            startService(ChangeHideHomeSettingIntent.create(baseContext, isChecked))
         }
     }
 

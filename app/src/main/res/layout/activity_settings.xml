@@ -93,7 +93,7 @@
             app:layout_constraintTop_toBottomOf="@+id/settingsLauncherHeaderTextView" />
 
         <Switch
-            android:id="@+id/switch2"
+            android:id="@+id/settingsHideHomeSwitch"
             android:layout_width="match_parent"
             android:layout_height="@dimen/row_height"
             android:text="Disable home screen"
@@ -115,7 +115,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/switch2" />
+            app:layout_constraintTop_toBottomOf="@+id/settingsHideHomeSwitch" />
 
         <Switch
             android:id="@+id/settingsHideIconsSwitch"

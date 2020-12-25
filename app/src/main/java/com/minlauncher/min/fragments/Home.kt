@@ -52,7 +52,7 @@ class Home : Fragment() {
     private val setHomeIconsBroadcastReceiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             intent?.also {
-                showOnlyIcons = SettingsService.iconsOnHome()
+                showOnlyIcons = SettingsService.homeIcons()
                 if (!paused) {
                     setAppsFragment()
                 }
@@ -86,7 +86,7 @@ class Home : Fragment() {
         paused = false
         super.onResume()
 
-        showOnlyIcons = SettingsService.iconsOnHome()
+        showOnlyIcons = SettingsService.homeIcons()
 
         setAppsFragment()
         setBatteryStatusTextView()

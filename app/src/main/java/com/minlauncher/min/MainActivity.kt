@@ -24,6 +24,8 @@ class MainActivity : AppCompatActivity() {
 
     private var paused: Boolean = true
     private var hideNotifications: Boolean = false
+    private var hideHome: Boolean = false
+
     private lateinit var viewPager :ViewPager2
     private lateinit var adapter: MainActivityScreensAdapter
 
@@ -43,7 +45,16 @@ class MainActivity : AppCompatActivity() {
 
     private val hideNotificationsBroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-            hideNotifications = SettingsService.hideNotifications()
+            hideNotifications = SettingsService.notificationsHidden()
+            if (!paused) {
+                setViewPager()
+            }
+        }
+    }
+
+    private val hideHomeBroadcastReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            hideHome = SettingsService.homeHidden()
             if (!paused) {
                 setViewPager()
             }
@@ -89,7 +100,9 @@ class MainActivity : AppCompatActivity() {
         super.onResume()
 
         if (SettingsService.ready()) {
-            hideNotifications = SettingsService.hideNotifications()
+            hideNotifications = SettingsService.notificationsHidden()
+            hideHome = SettingsService.homeHidden()
+
             viewPager.adapter = null
             adapter.clear()
             setViewPager()
@@ -120,7 +133,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setViewPager() {
-        adapter = MainActivityScreensAdapter(supportFragmentManager, lifecycle, hideNotifications, false)
+        adapter = MainActivityScreensAdapter(supportFragmentManager, lifecycle, hideNotifications, hideHome)
         viewPager.adapter = adapter
         viewPager.currentItem = 1
         viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {

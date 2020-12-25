@@ -57,7 +57,7 @@ class AppList : Fragment() {
 
     private val hideIconsSettingBroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-            hideIcons = SettingsService.hideIcons()
+            hideIcons = SettingsService.iconsHidden()
             if (!paused) {
                 setRecyclerView()
             }
@@ -113,7 +113,7 @@ class AppList : Fragment() {
             reloadList()
         }
 
-        hideIcons = SettingsService.hideIcons()
+        hideIcons = SettingsService.iconsHidden()
         setRecyclerView()
     }
 
