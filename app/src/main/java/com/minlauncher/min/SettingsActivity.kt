@@ -9,8 +9,6 @@ import android.view.Window
 import android.view.WindowManager
 import android.widget.Switch
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.minlauncher.min.adapters.SettingsAppListAdapter
@@ -19,7 +17,6 @@ import com.minlauncher.min.intents.*
 import com.minlauncher.min.models.SettingsAppListItem
 import com.minlauncher.min.services.AppsService
 import com.minlauncher.min.services.SettingsService
-import kotlinx.coroutines.launch
 
 class SettingsActivity : AppCompatActivity() {
 
@@ -80,37 +77,32 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     private fun setAdapter() {
-
-        lifecycleScope.launch {
-            val hiddenApps = AppsService.hiddenApps().map {
-                val applicationIcon = packageManager.getApplicationIcon(it.packageName)
-                SettingsAppListItem(it.id, it.label, it.packageName, applicationIcon)
-            }
-
-            val recyclerView = findViewById<RecyclerView>(R.id.hiddenAppsList)
-            recyclerView.layoutManager = LinearLayoutManager(applicationContext)
-            recyclerView.adapter = SettingsAppListAdapter(hiddenApps, object : SettingsAppOnClickListener {
-                override fun onClick(id: Int) {
-                    val intent = MarkAppAsVisibleIntent.create(baseContext, id)
-                    startService(intent)
-                }
-            })
+         val hiddenApps = AppsService.hiddenApps().map {
+            val applicationIcon = packageManager.getApplicationIcon(it.packageName)
+            SettingsAppListItem(it.id, it.label, it.packageName, applicationIcon)
         }
 
-        lifecycleScope.launch {
-            val homeApps = AppsService.homeApps().map {
-                val applicationIcon = packageManager.getApplicationIcon(it.packageName)
-                SettingsAppListItem(it.id, it.label, it.packageName, applicationIcon)
+        val recyclerView = findViewById<RecyclerView>(R.id.hiddenAppsList)
+        recyclerView.layoutManager = LinearLayoutManager(applicationContext)
+        recyclerView.adapter = SettingsAppListAdapter(hiddenApps, object : SettingsAppOnClickListener {
+            override fun onClick(id: Int) {
+                val intent = MarkAppAsVisibleIntent.create(baseContext, id)
+                startService(intent)
             }
-            val homeAppsRecyclerView = findViewById<RecyclerView>(R.id.settingsHomeAppsList)
-            homeAppsRecyclerView.layoutManager = LinearLayoutManager(applicationContext)
-            homeAppsRecyclerView.adapter = SettingsAppListAdapter(homeApps, object : SettingsAppOnClickListener {
-                override fun onClick(id: Int) {
-                    val intent = UnpinAppIntent.create(baseContext, id)
-                    startService(intent)
-                }
-            })
+        })
+
+        val homeApps = AppsService.homeApps().map {
+            val applicationIcon = packageManager.getApplicationIcon(it.packageName)
+            SettingsAppListItem(it.id, it.label, it.packageName, applicationIcon)
         }
+        val homeAppsRecyclerView = findViewById<RecyclerView>(R.id.settingsHomeAppsList)
+        homeAppsRecyclerView.layoutManager = LinearLayoutManager(applicationContext)
+        homeAppsRecyclerView.adapter = SettingsAppListAdapter(homeApps, object : SettingsAppOnClickListener {
+            override fun onClick(id: Int) {
+                val intent = UnpinAppIntent.create(baseContext, id)
+                startService(intent)
+            }
+        })
     }
 
     fun setActivityProperties() {

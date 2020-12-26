@@ -15,7 +15,6 @@ import android.widget.ImageView
 import android.widget.Switch
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.text.isDigitsOnly
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -31,7 +30,6 @@ import com.minlauncher.min.services.AppsService
 import com.minlauncher.min.services.SettingsService
 import com.viethoa.RecyclerViewFastScroller
 import com.viethoa.models.AlphabetItem
-import kotlinx.coroutines.launch
 
 class AppList : Fragment() {
 
@@ -50,13 +48,11 @@ class AppList : Fragment() {
 
     private val appsRefreshReceivers = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-            lifecycleScope.launch {
-                apps = AppsService.allApps()
-                lastUsedApps = AppsService.lastUsed()
+            apps = AppsService.allApps()
+            lastUsedApps = AppsService.lastUsed()
 
-                if (!paused) {
-                    setRecyclerView()
-                }
+            if (!paused) {
+                setRecyclerView()
             }
         }
     }
@@ -104,6 +100,17 @@ class AppList : Fragment() {
         setSwipeRefresh()
         setDarkModeSwitch()
 
+        apps = AppsService.allApps()
+        lastUsedApps = AppsService.lastUsed()
+
+        if (apps.isEmpty()) {
+            reloadList()
+        }
+
+        hideLastUsedApps = SettingsService.lastUsedAppsHidden()
+        hideIcons = SettingsService.iconsHidden()
+        setRecyclerView()
+
         return view
     }
 
@@ -123,18 +130,16 @@ class AppList : Fragment() {
         paused = false
         super.onResume()
 
-        lifecycleScope.launch {
-            apps = AppsService.allApps()
-            lastUsedApps = AppsService.lastUsed()
+        apps = AppsService.allApps()
+        lastUsedApps = AppsService.lastUsed()
 
-            if (apps.isEmpty()) {
-                reloadList()
-            }
-
-            hideLastUsedApps = SettingsService.lastUsedAppsHidden()
-            hideIcons = SettingsService.iconsHidden()
-            setRecyclerView()
+        if (apps.isEmpty()) {
+            reloadList()
         }
+
+        hideLastUsedApps = SettingsService.lastUsedAppsHidden()
+        hideIcons = SettingsService.iconsHidden()
+        setRecyclerView()
     }
 
     private fun setSettingsCog() {

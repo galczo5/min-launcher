@@ -20,31 +20,29 @@ class AppsService : Service() {
 
     companion object {
         lateinit var db: AppInfoDatabase
+        var apps = listOf<AppInfo>()
 
-        suspend fun allApps(): List<AppInfo> {
-            val entities = db.dao().all()
-            return AppInfoEntityConverter.toAppInfo(entities)
+        fun allApps(): List<AppInfo> {
+            return apps.toList()
         }
 
-        suspend fun homeApps(): List<AppInfo> {
-            val home = db.dao().home()
-            return AppInfoEntityConverter.toAppInfo(home)
+        fun homeApps(): List<AppInfo> {
+            return apps.filter { it.home }
         }
 
-        suspend fun hiddenApps(): List<AppInfo> {
-            val hidden = db.dao().hidden()
-            return AppInfoEntityConverter.toAppInfo(hidden)
+        fun hiddenApps(): List<AppInfo> {
+            return apps.filter { it.hidden }
         }
 
-        suspend fun lastUsed(): List<AppInfo> {
-            val lastUsed = db.dao().lastUsed()
-            return AppInfoEntityConverter.toAppInfo(lastUsed)
+        fun lastUsed(): List<AppInfo> {
+            return apps.sortedByDescending { it.lastUse } .take(5)
         }
     }
 
     override fun onCreate() {
         super.onCreate()
         db = Room.databaseBuilder(applicationContext, AppInfoDatabase::class.java, "min-app-info").build()
+        reloadCache()
     }
 
     override fun onBind(intent: Intent?): IBinder? {
@@ -88,17 +86,20 @@ class AppsService : Service() {
 
     private suspend fun changeVisibility(id: Int, hidden: Boolean) {
         db.dao().setHidden(id, hidden)
+        reloadCache()
         notifyRefresh()
     }
 
     private suspend fun pinApp(id: Int, home: Boolean) {
         db.dao().setHome(id, home)
+        reloadCache()
         notifyRefresh()
     }
 
     private suspend fun updateLastUse(id: Int) {
         val date = System.currentTimeMillis()
         db.dao().setLastUse(id, date)
+        reloadCache()
         notifyRefresh()
     }
 
@@ -115,6 +116,7 @@ class AppsService : Service() {
             }
 
             db.dao().updateDatabase(updatedApps)
+            reloadCache()
             notifyRefresh()
         }
     }
@@ -150,4 +152,11 @@ class AppsService : Service() {
             AppInfoEntity(0, label, packageName, false, false, null)
         }
     }
+
+    private fun reloadCache() {
+        GlobalScope.launch {
+            apps = AppInfoEntityConverter.toAppInfo(db.dao().all())
+        }
+    }
+
 }
