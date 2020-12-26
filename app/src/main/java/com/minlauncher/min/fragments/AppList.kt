@@ -15,6 +15,7 @@ import android.widget.ImageView
 import android.widget.Switch
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.text.isDigitsOnly
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
@@ -30,6 +31,7 @@ import com.minlauncher.min.services.AppsService
 import com.minlauncher.min.services.SettingsService
 import com.viethoa.RecyclerViewFastScroller
 import com.viethoa.models.AlphabetItem
+import kotlinx.coroutines.launch
 
 class AppList : Fragment() {
 
@@ -48,10 +50,13 @@ class AppList : Fragment() {
 
     private val appsRefreshReceivers = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-            apps = AppsService.allApps()
-            lastUsedApps = AppsService.lastUsed()
-            if (!paused) {
-                setRecyclerView()
+            lifecycleScope.launch {
+                apps = AppsService.allApps()
+                lastUsedApps = AppsService.lastUsed()
+
+                if (!paused) {
+                    setRecyclerView()
+                }
             }
         }
     }
@@ -118,16 +123,18 @@ class AppList : Fragment() {
         paused = false
         super.onResume()
 
-        apps = AppsService.allApps()
-        lastUsedApps = AppsService.lastUsed()
+        lifecycleScope.launch {
+            apps = AppsService.allApps()
+            lastUsedApps = AppsService.lastUsed()
 
-        if (apps.isEmpty()) {
-            reloadList()
+            if (apps.isEmpty()) {
+                reloadList()
+            }
+
+            hideLastUsedApps = SettingsService.lastUsedAppsHidden()
+            hideIcons = SettingsService.iconsHidden()
+            setRecyclerView()
         }
-
-        hideLastUsedApps = SettingsService.lastUsedAppsHidden()
-        hideIcons = SettingsService.iconsHidden()
-        setRecyclerView()
     }
 
     private fun setSettingsCog() {
@@ -176,7 +183,7 @@ class AppList : Fragment() {
             override fun onClick(position: Int) {
                 val item = items[position]
                 baseContext?.also {
-                    val intent = SetLastUseDateIntent.create(it, item.label, item.packageName)
+                    val intent = SetLastUseDateIntent.create(it, item.id)
                     activity?.startService(intent)
                 }
 
@@ -186,14 +193,14 @@ class AppList : Fragment() {
         }
 
         val menuClickListener = object : AppListContextMenuClickListener {
-            override fun onHide(label: String, packageName: String) {
-                baseContext?.let { MarkAppAsHiddenIntent.create(it, label, packageName) }.also {
+            override fun onHide(id: Int) {
+                baseContext?.let { MarkAppAsHiddenIntent.create(it, id) }.also {
                     activity?.startService(it)
                 }
             }
 
-            override fun onAddToHome(label: String, packageName: String) {
-                baseContext?.let { PinAppIntent.create(it, label, packageName) }.also {
+            override fun onAddToHome(id: Int) {
+                baseContext?.let { PinAppIntent.create(it, id) }.also {
                     activity?.startService(it)
                 }
             }
@@ -235,12 +242,12 @@ class AppList : Fragment() {
         val label = appInfo.label
 
         val icon = packageManager.getApplicationIcon(packageName)
-        return AppListItem(label, packageName, icon, false, index, !hideIcons)
+        return AppListItem(appInfo.id, label, packageName, icon, false, index, !hideIcons)
     }
 
     private fun getSeparator(labelFirstLetter: String, index: Int): AppListItem {
         val separatorLabel = if (labelFirstLetter.isDigitsOnly()) "0-9" else labelFirstLetter
-        return AppListItem(separatorLabel, "", ShapeDrawable(), true, index, false)
+        return AppListItem(-1, separatorLabel, "", ShapeDrawable(), true, index, false)
     }
 
     private fun getAlphabet(items: List<AppListItem>): List<AlphabetItem> {

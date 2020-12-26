@@ -7,13 +7,13 @@ import com.minlauncher.min.services.AppsService
 class MarkAppAsHiddenIntent {
 
     companion object {
+        const val EXTRA = "id";
         const val ACTION = "hide_app"
 
-        fun create(context: Context, label: String, packageName: String): Intent {
+        fun create(context: Context, id: Int): Intent {
             val intent = Intent(context, AppsService::class.java)
             intent.putExtra("action", ACTION)
-            intent.putExtra("packageName", packageName)
-            intent.putExtra("label", label)
+            intent.putExtra(EXTRA, id)
             return intent
         }
     }

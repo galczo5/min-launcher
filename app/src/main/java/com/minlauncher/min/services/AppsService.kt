@@ -4,46 +4,47 @@ import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.os.IBinder
+import androidx.room.Room
+import androidx.room.RoomDatabase
 import com.minlauncher.min.Constants
+import com.minlauncher.min.db.AppInfoDatabase
+import com.minlauncher.min.db.AppInfoEntity
+import com.minlauncher.min.db.AppInfoEntityConverter
 import com.minlauncher.min.intents.*
 import com.minlauncher.min.models.AppInfo
-import com.minlauncher.min.models.AppInfoSharedPreferences
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import java.util.*
 
 class AppsService : Service() {
 
     companion object {
-        private var apps: List<AppInfo> = listOf()
+        lateinit var db: AppInfoDatabase
 
-        fun allApps(): List<AppInfo> {
-            return apps.filter { !it.hidden }
+        suspend fun allApps(): List<AppInfo> {
+            val entities = db.dao().all()
+            return AppInfoEntityConverter.toAppInfo(entities)
         }
 
-        fun homeApps(): List<AppInfo> {
-            return allApps().filter { it.home }
+        suspend fun homeApps(): List<AppInfo> {
+            val home = db.dao().home()
+            return AppInfoEntityConverter.toAppInfo(home)
         }
 
-        fun hiddenApps(): List<AppInfo> {
-            return apps.filter { it.hidden }
+        suspend fun hiddenApps(): List<AppInfo> {
+            val hidden = db.dao().hidden()
+            return AppInfoEntityConverter.toAppInfo(hidden)
         }
 
-        fun lastUsed(): List<AppInfo> {
-            return allApps()
-                .sortedByDescending { it.lastUse }
-                .take(5)
+        suspend fun lastUsed(): List<AppInfo> {
+            val lastUsed = db.dao().lastUsed()
+            return AppInfoEntityConverter.toAppInfo(lastUsed)
         }
     }
 
-    lateinit var preferences: AppInfoSharedPreferences
-
     override fun onCreate() {
         super.onCreate()
-
-        val key = Constants.SHARED_PREFERENCES_APP_LIST.VALUE
-        val sharedPreferences = getSharedPreferences(key, Context.MODE_PRIVATE)
-        preferences = AppInfoSharedPreferences(sharedPreferences)
-
-        loadList()
+        db = Room.databaseBuilder(applicationContext, AppInfoDatabase::class.java, "min-app-info").build()
     }
 
     override fun onBind(intent: Intent?): IBinder? {
@@ -53,34 +54,31 @@ class AppsService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         intent?.also {
             val action = it.getStringExtra("action")
-            when (action) {
-                ReloadAppsListIntent.ACTION -> {
-                    loadList()
-                }
-                MarkAppAsHiddenIntent.ACTION -> {
-                    val label = it.getStringExtra("label")
-                    val packageName = it.getStringExtra("packageName")
-                    changeVisibility(label, packageName, true)
-                }
-                MarkAppAsVisibleIntent.ACTION -> {
-                    val label = it.getStringExtra("label")
-                    val packageName = it.getStringExtra("packageName")
-                    changeVisibility(label, packageName, false)
-                }
-                PinAppIntent.ACTION -> {
-                    val label = it.getStringExtra("label")
-                    val packageName = it.getStringExtra("packageName")
-                    pinApp(label, packageName, true)
-                }
-                UnpinAppIntent.ACTION -> {
-                    val label = it.getStringExtra("label")
-                    val packageName = it.getStringExtra("packageName")
-                    pinApp(label, packageName, false)
-                }
-                SetLastUseDateIntent.ACTION -> {
-                    val label = it.getStringExtra("label")
-                    val packageName = it.getStringExtra("packageName")
-                    updateLastUse(label, packageName)
+            GlobalScope.launch {
+                when (action) {
+                    ReloadAppsListIntent.ACTION -> {
+                        loadList()
+                    }
+                    MarkAppAsHiddenIntent.ACTION -> {
+                        val id = it.getIntExtra(MarkAppAsHiddenIntent.EXTRA, -1)
+                        changeVisibility(id, true)
+                    }
+                    MarkAppAsVisibleIntent.ACTION -> {
+                        val id = it.getIntExtra(MarkAppAsVisibleIntent.EXTRA, -1)
+                        changeVisibility(id, false)
+                    }
+                    PinAppIntent.ACTION -> {
+                        val id = it.getIntExtra(PinAppIntent.EXTRA, -1)
+                        pinApp(id, true)
+                    }
+                    UnpinAppIntent.ACTION -> {
+                        val id = it.getIntExtra(UnpinAppIntent.EXTRA, -1)
+                        pinApp(id, false)
+                    }
+                    SetLastUseDateIntent.ACTION -> {
+                        val id = it.getIntExtra(SetLastUseDateIntent.EXTRA, -1)
+                        updateLastUse(id)
+                    }
                 }
             }
         }
@@ -88,37 +86,48 @@ class AppsService : Service() {
         return super.onStartCommand(intent, flags, startId)
     }
 
-    private fun changeVisibility(label: String?, packageName: String?, hidden: Boolean) {
-        preferences.getApp(label, packageName)?.also { app ->
-            preferences.update(AppInfo(app.label, app.packageName, app.home, hidden, app.lastUse))
-            loadList()
+    private suspend fun changeVisibility(id: Int, hidden: Boolean) {
+        db.dao().setHidden(id, hidden)
+        notifyRefresh()
+    }
+
+    private suspend fun pinApp(id: Int, home: Boolean) {
+        db.dao().setHome(id, home)
+        notifyRefresh()
+    }
+
+    private suspend fun updateLastUse(id: Int) {
+        val date = System.currentTimeMillis()
+        db.dao().setLastUse(id, date)
+        notifyRefresh()
+    }
+
+    private suspend fun loadList() {
+        getInstalledApps()?.also { installedApps ->
+            val all = db.dao().all()
+            val updatedApps = installedApps.map { appInfoEntity ->
+                val find = all.find { it.label == appInfoEntity.label && it.packageName == appInfoEntity.packageName }
+                if (find != null) {
+                    copyEntity(find)
+                } else {
+                    appInfoEntity
+                }
+            }
+
+            db.dao().updateDatabase(updatedApps)
             notifyRefresh()
         }
     }
 
-    private fun pinApp(label: String?, packageName: String?, home: Boolean) {
-        preferences.getApp(label, packageName)?.also { app ->
-            preferences.update(AppInfo(app.label, app.packageName, home, app.hidden, app.lastUse))
-            loadList()
-            notifyRefresh()
-        }
-    }
-
-    private fun updateLastUse(label: String?, packageName: String?) {
-        preferences.getApp(label, packageName)?.also { app ->
-            val date = Date(System.currentTimeMillis())
-            preferences.update(AppInfo(app.label, app.packageName, app.home, app.hidden, date))
-            loadList()
-            notifyRefresh()
-        }
-    }
-
-    private fun loadList() {
-        getInstalledApps()?.also {
-            preferences.refreshApps(it)
-            apps = preferences.load()
-            notifyRefresh()
-        }
+    private fun copyEntity(find: AppInfoEntity): AppInfoEntity {
+        return AppInfoEntity(
+            0,
+            find.label,
+            find.packageName,
+            find.home,
+            find.hidden,
+            find.lastUse
+        )
     }
 
     private fun notifyRefresh() {
@@ -126,7 +135,7 @@ class AppsService : Service() {
         sendBroadcast(intent)
     }
 
-    private fun getInstalledApps(): List<AppInfo>? {
+    private fun getInstalledApps(): List<AppInfoEntity>? {
         val intent = Intent(Intent.ACTION_MAIN, null)
         intent.addCategory(Intent.CATEGORY_LAUNCHER)
 
@@ -138,7 +147,7 @@ class AppsService : Service() {
         return allApps?.map {
             val label = it.loadLabel(packageManager).toString()
             val packageName = it.activityInfo.packageName
-            AppInfo(label, packageName, false, false, null)
+            AppInfoEntity(0, label, packageName, false, false, null)
         }
     }
 }

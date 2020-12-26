@@ -72,13 +72,13 @@ class AppListAdapter(val apps: List<AppListItem>,
             holder.view.setOnCreateContextMenuListener { menu, v, menuInfo ->
                 menu.add(ContextMenuGroup.ADD_TO_HOME.value, item.index, 0, "Add to home screen")
                     .setOnMenuItemClickListener {
-                        onContextMenuClickListener.onAddToHome(item.label, item.packageName)
+                        onContextMenuClickListener.onAddToHome(item.id)
                         true
                     }
 
                 menu.add(ContextMenuGroup.HIDE_FROM_LIST.value, item.index, 0, "Hide app")
                     .setOnMenuItemClickListener {
-                        onContextMenuClickListener.onHide(item.label, item.packageName)
+                        onContextMenuClickListener.onHide(item.id)
                         true
                     }
             }

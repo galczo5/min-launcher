@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.minlauncher.min.R
@@ -18,6 +19,7 @@ import com.minlauncher.min.intents.RefreshAppsListIntent
 import com.minlauncher.min.intents.UnpinAppIntent
 import com.minlauncher.min.models.AppInfo
 import com.minlauncher.min.services.AppsService
+import kotlinx.coroutines.launch
 
 class HomeList : Fragment() {
 
@@ -27,9 +29,11 @@ class HomeList : Fragment() {
 
     private val appsRefreshReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-            getHomeApps()
-            if (!paused) {
-                setRecyclerView()
+            lifecycleScope.launch {
+                homeApps = AppsService.homeApps()
+                if (!paused) {
+                    setRecyclerView()
+                }
             }
         }
     }
@@ -57,19 +61,17 @@ class HomeList : Fragment() {
     override fun onResume() {
         paused = false
         super.onResume()
-        getHomeApps()
-        setRecyclerView()
-    }
-
-    private fun getHomeApps() {
-        homeApps = AppsService.homeApps()
+        lifecycleScope.launch {
+            homeApps = AppsService.homeApps()
+            setRecyclerView()
+        }
     }
 
     private fun setRecyclerView() {
         val contextMenuClickListener = object : HomeAppListContextMenuClickListener {
-            override fun onRemoveFromHome(label: String, packageName: String) {
+            override fun onRemoveFromHome(id: Int) {
                 activity?.baseContext?.also {
-                    val intent = UnpinAppIntent.create(it, label, packageName)
+                    val intent = UnpinAppIntent.create(it, id)
                     activity?.startService(intent)
                 }
             }

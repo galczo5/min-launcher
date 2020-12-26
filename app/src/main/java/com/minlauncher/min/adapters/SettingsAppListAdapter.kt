@@ -34,7 +34,7 @@ class SettingsAppListAdapter(val apps: List<SettingsAppListItem>, val onClickLis
         holder.imageView.setImageDrawable(item.icon)
         holder.showImageView.setOnClickListener {
             item.packageName?.let { packageName ->
-                onClickListener.onClick(item.label, packageName)
+                onClickListener.onClick(item.id)
             }
         }
     }

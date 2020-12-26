@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.flexbox.FlexboxLayoutManager
 import com.minlauncher.min.R
@@ -20,6 +21,7 @@ import com.minlauncher.min.intents.UnpinAppIntent
 import com.minlauncher.min.models.AppInfo
 import com.minlauncher.min.models.HomeGridItem
 import com.minlauncher.min.services.AppsService
+import kotlinx.coroutines.launch
 
 class HomeIcons : Fragment() {
 
@@ -30,9 +32,11 @@ class HomeIcons : Fragment() {
 
     private val appsRefreshReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-            getHomeApps()
-            if (!paused) {
-                setRecyclerView()
+            lifecycleScope.launch {
+                homeApps = AppsService.homeApps()
+                if (!paused) {
+                    setRecyclerView()
+                }
             }
         }
     }
@@ -48,10 +52,6 @@ class HomeIcons : Fragment() {
         return view
     }
 
-    private fun getHomeApps() {
-        homeApps = AppsService.homeApps()
-    }
-
     override fun onDestroyView() {
         super.onDestroyView()
         activity?.unregisterReceiver(appsRefreshReceiver)
@@ -65,15 +65,18 @@ class HomeIcons : Fragment() {
     override fun onResume() {
         paused = false
         super.onResume()
-        getHomeApps()
-        setRecyclerView()
+
+        lifecycleScope.launch {
+            homeApps = AppsService.homeApps()
+            setRecyclerView()
+        }
     }
 
     private fun setRecyclerView() {
         val contextMenuClickListener = object : HomeAppListContextMenuClickListener {
-            override fun onRemoveFromHome(label: String, packageName: String) {
+            override fun onRemoveFromHome(id: Int) {
                 activity?.baseContext?.also {
-                    val intent = UnpinAppIntent.create(it, label, packageName)
+                    val intent = UnpinAppIntent.create(it, id)
                     activity?.startService(intent)
                 }
             }
@@ -87,7 +90,7 @@ class HomeIcons : Fragment() {
     private fun getItems(): List<HomeGridItem> {
         return homeApps.map {
             val icon = packageManager.getApplicationIcon(it.packageName)
-            HomeGridItem(it.label, it.packageName, icon)
+            HomeGridItem(it.id, it.label, it.packageName, icon)
         }
     }
 }

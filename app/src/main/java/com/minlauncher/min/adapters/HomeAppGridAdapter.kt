@@ -39,7 +39,7 @@ class HomeAppGridAdapter(val apps: List<HomeGridItem>,
 
         holder.view.setOnCreateContextMenuListener { menu, _, _ ->
             menu.add(ContextMenuGroup.REMOVE_FROM_HOME.value, position, 0, "Remove from home screen").setOnMenuItemClickListener {
-                contextMenuClickListener.onRemoveFromHome(item.label, item.packageName)
+                contextMenuClickListener.onRemoveFromHome(item.id)
                 true
             }
         }
