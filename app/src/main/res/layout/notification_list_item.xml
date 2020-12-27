@@ -4,7 +4,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingVertical="20dp">
+    android:paddingTop="@dimen/margin_top"
+    android:paddingBottom="@dimen/margin_bottom"
+    android:paddingRight="@dimen/margin_right"
+    android:paddingLeft="@dimen/margin_left"
+    android:foreground="?android:selectableItemBackground">
 
     <LinearLayout
         android:id="@+id/linearLayout"
@@ -26,7 +30,7 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
             android:text="Label"
-            android:textColor="@color/teal_700" />
+            android:textColor="@color/primary" />
 
         <TextClock
             android:id="@+id/notificationTime"
@@ -53,5 +57,15 @@
         android:textAppearance="@style/TextAppearance.AppCompat.Small"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/notificationLabel" />
+
+    <ImageView
+        android:id="@+id/notificationImageView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:adjustViewBounds="true"
+        android:layout_marginTop="10dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/notificationText" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

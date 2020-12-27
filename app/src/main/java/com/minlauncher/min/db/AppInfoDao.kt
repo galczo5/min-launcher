@@ -1,11 +1,11 @@
 package com.minlauncher.min.db
 
 import androidx.room.*
-import java.util.*
 
 @Dao
 abstract class AppInfoDao {
 
+    @Transaction
     open suspend fun updateDatabase(appInfo: List<AppInfoEntity>) {
         deleteAll()
         insertAll(appInfo)
@@ -13,15 +13,6 @@ abstract class AppInfoDao {
 
     @Query("SELECT * FROM app_info")
     abstract suspend fun all(): List<AppInfoEntity>
-
-    @Query("SELECT * FROM app_info WHERE home = 1")
-    abstract suspend fun home(): List<AppInfoEntity>
-
-    @Query("SELECT * FROM app_info WHERE hidden = 1")
-    abstract suspend fun hidden(): List<AppInfoEntity>
-
-    @Query("SELECT * FROM app_info ORDER BY last_use DESC LIMIT 5")
-    abstract suspend fun lastUsed(): List<AppInfoEntity>
 
     @Insert
     abstract suspend fun insertAll(appInfo: List<AppInfoEntity>)

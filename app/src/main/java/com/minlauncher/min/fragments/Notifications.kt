@@ -85,7 +85,7 @@ class Notifications : Fragment() {
             val icon = packageManager.getApplicationIcon(it.packageName)
             val applicationInfo = packageManager.getApplicationInfo(it.packageName, 0)
             val applicationLabel = packageManager.getApplicationLabel(applicationInfo).toString()
-            AppNotificationListItem(icon, applicationLabel, it.title, it.desc, it.postDate)
+            AppNotificationListItem(icon, applicationLabel, it.title, it.desc, it.postDate, it.bitmap)
         }
     }
 

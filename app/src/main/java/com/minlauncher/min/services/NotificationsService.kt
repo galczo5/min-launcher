@@ -1,5 +1,6 @@
 package com.minlauncher.min.services
 
+import android.graphics.Bitmap
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import com.minlauncher.min.intents.RefreshNotificationListIntent
@@ -19,9 +20,11 @@ class NotificationsService : NotificationListenerService() {
                         val extras = it.notification.extras
                         val title = extras.getCharSequence("android.title").toString()
                         val text = extras.getCharSequence("android.text").toString()
+                        val bitmap: Bitmap? = extras.get("android.picture") as Bitmap?
                         AppNotification(
                             it.id,
                             it.tag,
+                            bitmap,
                             it.packageName,
                             it.notification.contentIntent,
                             title,

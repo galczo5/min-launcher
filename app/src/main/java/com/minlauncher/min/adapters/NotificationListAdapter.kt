@@ -1,5 +1,7 @@
 package com.minlauncher.min.adapters
 
+import android.graphics.drawable.BitmapDrawable
+import android.media.Image
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -20,6 +22,7 @@ class NotificationListAdapter(val notifications: List<AppNotificationListItem>, 
         val iconImageView = view.findViewById<ImageView>(R.id.notificationIcon)
         val applicationLabelTextView = view.findViewById<TextView>(R.id.notificationApplicationLabel)
         val notificationTimeTextClock = view.findViewById<TextClock>(R.id.notificationTime)
+        val notificationImageView = view.findViewById<ImageView>(R.id.notificationImageView)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -35,14 +38,27 @@ class NotificationListAdapter(val notifications: List<AppNotificationListItem>, 
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val notification = notifications[position]
-        holder.labelTextView.text = notification.title
-        holder.descriptionTextView.text = notification.desc
+
+        notification.title?.also {
+            holder.labelTextView.text = notification.title
+        }
+
+        notification.desc?.also {
+            holder.descriptionTextView.text = notification.desc
+        }
+
         holder.iconImageView.setImageDrawable(notification.icon)
         holder.applicationLabelTextView.text = notification.applicationLabel
         holder.notificationTimeTextClock.text = SimpleDateFormat().format(Date(notification.postDate))
 
         holder.view.setOnClickListener {
             onClickListener.onClick(position)
+        }
+
+        holder.notificationImageView.visibility = View.GONE
+        notification.bitmap?.also {
+            holder.notificationImageView.setImageDrawable(BitmapDrawable(notification.bitmap))
+            holder.notificationImageView.visibility = View.VISIBLE
         }
     }
 }

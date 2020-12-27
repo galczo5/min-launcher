@@ -6,14 +6,14 @@
     tools:context=".fragments.Notifications"
     android:paddingTop="@dimen/margin_top"
     android:paddingBottom="@dimen/margin_bottom"
-    android:paddingLeft="@dimen/margin_left"
-    android:paddingRight="@dimen/margin_right"
     android:orientation="vertical">
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Notifications"
+        android:paddingLeft="@dimen/margin_left"
+        android:paddingRight="@dimen/margin_right"
         android:layout_marginBottom="@dimen/margin_bottom"
         android:textAppearance="@style/TextAppearance.AppCompat.Large" />
 

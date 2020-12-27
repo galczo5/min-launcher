@@ -25,14 +25,14 @@
             android:layout_marginLeft="@dimen/margin_left"/>
 
         <TextView
-            android:id="@+id/text"
+            android:id="@+id/settingsHiddenAppsTextView"
             android:layout_width="wrap_content"
             android:layout_height="@dimen/row_height"
             android:gravity="center"
             android:layout_marginTop="20dp"
             android:text="@string/hiddenAppsHeaderText"
             android:textAppearance="@style/TextAppearance.AppCompat.Small"
-            android:textColor="@color/teal_700"
+            android:textColor="@color/primary"
             android:layout_marginRight="@dimen/margin_right"
             android:layout_marginLeft="@dimen/margin_left"
             app:layout_constraintStart_toStartOf="parent"
@@ -42,18 +42,18 @@
             android:id="@+id/hiddenAppsList"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@+id/text"
+            app:layout_constraintTop_toBottomOf="@+id/settingsHiddenAppsTextView"
             tools:layout_editor_absoluteX="42dp" />
 
         <TextView
-            android:id="@+id/settingsHomeAppsHeader"
+            android:id="@+id/settingsHomeAppsTextView"
             android:layout_width="wrap_content"
             android:layout_height="@dimen/row_height"
             android:gravity="center"
             android:layout_marginTop="20dp"
             android:text="@string/settingsHomeAppsHeaderText"
             android:textAppearance="@style/TextAppearance.AppCompat.Small"
-            android:textColor="@color/teal_700"
+            android:textColor="@color/primary"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/hiddenAppsList"
             android:layout_marginRight="@dimen/margin_right"
@@ -63,7 +63,7 @@
             android:id="@+id/settingsHomeAppsList"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@+id/settingsHomeAppsHeader"
+            app:layout_constraintTop_toBottomOf="@+id/settingsHomeAppsTextView"
             tools:layout_editor_absoluteX="42dp" />
 
         <TextView
@@ -74,7 +74,7 @@
             android:layout_marginTop="20dp"
             android:text="@string/launcherSettingsHeaderText"
             android:textAppearance="@style/TextAppearance.AppCompat.Small"
-            android:textColor="@color/teal_700"
+            android:textColor="@color/primary"
             android:layout_marginRight="@dimen/margin_right"
             android:layout_marginLeft="@dimen/margin_left"
             app:layout_constraintStart_toStartOf="parent"

@@ -16,6 +16,11 @@ class SettingsService : Service() {
 
         private lateinit var sharedPreferences: SharedPreferences
 
+        fun getInitValue(getSharedPreferences: (name: String, mode: Int) -> SharedPreferences, key: String): Boolean {
+            val sharedPreferences = getSharedPreferences(Constants.SHARED_PREFERENCES_SETTINGS.VALUE, Context.MODE_PRIVATE)
+            return sharedPreferences.getBoolean(getKey(key), false)
+        }
+
         fun ready(): Boolean {
             return this::sharedPreferences.isInitialized
         }
@@ -40,6 +45,10 @@ class SettingsService : Service() {
             return sharedPreferences.getBoolean(getKey(Settings.HIDE_LAST_USED_APPS.NAME), false)
         }
 
+        fun darkMode(): Boolean {
+            return sharedPreferences.getBoolean(getKey(Settings.DARK_MODE.NAME), false)
+        }
+
         private fun getKey(key: String): String {
             return Constants.SHARED_PREFERENCES_SETTINGS_KEY_PREFIX.VALUE + "_" + key
         }
@@ -49,10 +58,6 @@ class SettingsService : Service() {
     override fun onCreate() {
         super.onCreate()
         sharedPreferences = getSharedPreferences(Constants.SHARED_PREFERENCES_SETTINGS.VALUE, Context.MODE_PRIVATE)
-
-        sendBroadcast(IconsOnHomeSettingChangedIntent.create(baseContext, homeIcons()))
-        sendBroadcast(IconsHideSettingChangedIntent.create(baseContext, iconsHidden()))
-        sendBroadcast(IconsHideSettingChangedIntent.create(baseContext, notificationsHidden()))
     }
 
     override fun onBind(intent: Intent): IBinder? {
@@ -64,29 +69,52 @@ class SettingsService : Service() {
             val action = intent.getStringExtra("action")
             when (action) {
                 ChangeIconsOnHomeSettingIntent.ACTION -> {
-                    val value = intent.getBooleanExtra(ChangeIconsOnHomeSettingIntent.EXTRA_KEY, false)
-                    setBoolean(Settings.ICONS_ON_HOME_SCREEN.NAME, value)
-                    sendBroadcast(IconsOnHomeSettingChangedIntent.create(baseContext, value))
+                    saveChanges(
+                        it,
+                        ChangeIconsOnHomeSettingIntent.EXTRA_KEY,
+                        Settings.ICONS_ON_HOME_SCREEN.NAME,
+                        IconsOnHomeSettingChangedIntent.create()
+                    )
                 }
                 ChangeHideIconsSettingIntent.ACTION -> {
-                    val value = intent.getBooleanExtra(ChangeHideIconsSettingIntent.EXTRA_KEY, false)
-                    setBoolean(Settings.HIDE_ICONS.NAME, value)
-                    sendBroadcast(IconsHideSettingChangedIntent.create(baseContext, value))
+                    saveChanges(
+                        it,
+                        ChangeHideIconsSettingIntent.EXTRA_KEY,
+                        Settings.HIDE_ICONS.NAME,
+                        IconsHideSettingChangedIntent.create()
+                    )
                 }
                 ChangeHideNotificationsSettingIntent.ACTION -> {
-                    val value = intent.getBooleanExtra(ChangeHideNotificationsSettingIntent.EXTRA_KEY, false)
-                    setBoolean(Settings.HIDE_NOTIFICATIONS.NAME, value)
-                    sendBroadcast(IconsHideSettingChangedIntent.create(baseContext, value))
+                    saveChanges(
+                        it,
+                        ChangeHideNotificationsSettingIntent.EXTRA_KEY,
+                        Settings.HIDE_NOTIFICATIONS.NAME,
+                        IconsHideSettingChangedIntent.create()
+                    )
                 }
                 ChangeHideHomeSettingIntent.ACTION -> {
-                    val value = intent.getBooleanExtra(ChangeHideHomeSettingIntent.EXTRA_KEY, false)
-                    setBoolean(Settings.HIDE_HOME.NAME, value)
-                    sendBroadcast(HomeHideSettingChangedIntent.create(baseContext, value))
+                    saveChanges(
+                        it,
+                        ChangeHideHomeSettingIntent.EXTRA_KEY,
+                        Settings.HIDE_HOME.NAME,
+                        HomeHideSettingChangedIntent.create()
+                    )
                 }
                 ChangeHideLastUsedAppsSettingIntent.ACTION -> {
-                    val value = intent.getBooleanExtra(ChangeHideLastUsedAppsSettingIntent.EXTRA_KEY, false)
-                    setBoolean(Settings.HIDE_LAST_USED_APPS.NAME, value)
-                    sendBroadcast(LastUsedAppsHideSettingChangedIntent.create(baseContext, value))
+                    saveChanges(
+                        it,
+                        ChangeHideLastUsedAppsSettingIntent.EXTRA_KEY,
+                        Settings.HIDE_LAST_USED_APPS.NAME,
+                        LastUsedAppsHideSettingChangedIntent.create()
+                    )
+                }
+                ChangeDarkModeSettingIntent.ACTION -> {
+                    saveChanges(
+                        it,
+                        ChangeDarkModeSettingIntent.EXTRA_KEY,
+                        Settings.DARK_MODE.NAME,
+                        DarkModeSettingChangedIntent.create()
+                    )
                 }
             }
         }
@@ -94,6 +122,11 @@ class SettingsService : Service() {
         return super.onStartCommand(intent, flags, startId)
     }
 
+    private fun saveChanges(intent: Intent, extraKey: String, settingKey: String, intentToBroadcast: Intent) {
+        val value = intent.getBooleanExtra(extraKey, false)
+        setBoolean(settingKey, value)
+        sendBroadcast(intentToBroadcast)
+    }
 
     private fun setBoolean(key: String, value: Boolean) {
         sharedPreferences.edit {

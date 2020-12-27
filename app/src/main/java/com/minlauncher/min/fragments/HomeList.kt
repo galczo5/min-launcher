@@ -43,9 +43,6 @@ class HomeList : Fragment() {
         recyclerView = view.findViewById(R.id.homeAppList)
         activity?.registerReceiver(appsRefreshReceiver, IntentFilter(RefreshAppsListIntent.ACTION))
 
-        homeApps = AppsService.homeApps()
-        setRecyclerView()
-
         return view
     }
 
@@ -62,6 +59,7 @@ class HomeList : Fragment() {
     override fun onResume() {
         paused = false
         super.onResume()
+
         homeApps = AppsService.homeApps()
         setRecyclerView()
     }

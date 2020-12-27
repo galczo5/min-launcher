@@ -100,17 +100,6 @@ class AppList : Fragment() {
         setSwipeRefresh()
         setDarkModeSwitch()
 
-        apps = AppsService.allApps()
-        lastUsedApps = AppsService.lastUsed()
-
-        if (apps.isEmpty()) {
-            reloadList()
-        }
-
-        hideLastUsedApps = SettingsService.lastUsedAppsHidden()
-        hideIcons = SettingsService.iconsHidden()
-        setRecyclerView()
-
         return view
     }
 
@@ -163,21 +152,11 @@ class AppList : Fragment() {
     }
 
     private fun setDarkModeSwitch() {
-        val sharedPreferences = activity?.getSharedPreferences(
-            Constants.DARK_MODE_SHARED_PREFERENCES_NAME.VALUE,
-            Context.MODE_PRIVATE
-        )
-
-        val darkModeOn = sharedPreferences?.getInt(
-            Constants.DARK_MODE_SHARED_PREFERENCES_KEY.VALUE,
-            AppCompatDelegate.MODE_NIGHT_NO
-        )
-
-        switch.isChecked = darkModeOn == AppCompatDelegate.MODE_NIGHT_YES
+        switch.isChecked = SettingsService.darkMode()
         switch.setOnCheckedChangeListener { _, isChecked ->
-            val intentName = if (isChecked) Constants.DARK_MODE_ON.VALUE else Constants.DARK_MODE_OFF.VALUE
-            val intent = Intent(intentName)
-            activity?.sendBroadcast(intent)
+            activity?.baseContext?.also {
+                activity?.startService(ChangeDarkModeSettingIntent.create(it, isChecked))
+            }
         }
     }
 

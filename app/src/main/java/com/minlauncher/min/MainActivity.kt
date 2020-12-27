@@ -15,6 +15,7 @@ import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES
 import androidx.core.content.edit
 import androidx.viewpager2.widget.ViewPager2
 import com.minlauncher.min.adapters.MainActivityScreensAdapter
+import com.minlauncher.min.intents.DarkModeSettingChangedIntent
 import com.minlauncher.min.intents.HomeHideSettingChangedIntent
 import com.minlauncher.min.intents.NotificationsHideChangedIntent
 import com.minlauncher.min.intents.ReloadAppsListIntent
@@ -30,17 +31,10 @@ class MainActivity : AppCompatActivity() {
     private lateinit var viewPager :ViewPager2
     private lateinit var adapter: MainActivityScreensAdapter
 
-    private val darkModeOnBroadcastReceiver = object : BroadcastReceiver() {
+    private val darkModeChangedBroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-            AppCompatDelegate.setDefaultNightMode(MODE_NIGHT_YES)
-            saveDarkMode(MODE_NIGHT_YES)
-        }
-    }
-
-    private val darkModeOffBroadcastReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
-            AppCompatDelegate.setDefaultNightMode(MODE_NIGHT_NO)
-            saveDarkMode(MODE_NIGHT_NO)
+            val mode = themeMode()
+            AppCompatDelegate.setDefaultNightMode(mode)
         }
     }
 
@@ -72,18 +66,16 @@ class MainActivity : AppCompatActivity() {
             startService(it)
         }
 
-        registerReceiver(darkModeOnBroadcastReceiver, IntentFilter(Constants.DARK_MODE_ON.VALUE))
-        registerReceiver(darkModeOffBroadcastReceiver, IntentFilter(Constants.DARK_MODE_OFF.VALUE))
+        registerReceiver(darkModeChangedBroadcastReceiver, IntentFilter(DarkModeSettingChangedIntent.ACTION))
         registerReceiver(hideNotificationsBroadcastReceiver, IntentFilter(NotificationsHideChangedIntent.ACTION))
         registerReceiver(hideHomeBroadcastReceiver, IntentFilter(HomeHideSettingChangedIntent.ACTION))
 
-        val sharedPreferences = getSharedPreferences(
-            Constants.DARK_MODE_SHARED_PREFERENCES_NAME.VALUE,
-            Context.MODE_PRIVATE
+        val darkModeValue = SettingsService.getInitValue(
+            { name, mode -> getSharedPreferences(name, mode) },
+            Settings.DARK_MODE.NAME
         )
 
-        val darkModeOn = sharedPreferences.getInt(Constants.DARK_MODE_SHARED_PREFERENCES_KEY.VALUE, MODE_NIGHT_NO)
-        AppCompatDelegate.setDefaultNightMode(darkModeOn)
+        AppCompatDelegate.setDefaultNightMode(darkMode(darkModeValue))
 
         viewPager = findViewById(R.id.viewPager)
         setViewPager()
@@ -94,11 +86,9 @@ class MainActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        unregisterReceiver(darkModeOnBroadcastReceiver)
-        unregisterReceiver(darkModeOffBroadcastReceiver)
+        unregisterReceiver(darkModeChangedBroadcastReceiver)
         unregisterReceiver(hideNotificationsBroadcastReceiver)
         unregisterReceiver(hideHomeBroadcastReceiver)
-        stopService(Intent(baseContext, AppsService::class.java))
     }
 
     override fun onPause() {
@@ -117,15 +107,6 @@ class MainActivity : AppCompatActivity() {
             viewPager.adapter = null
             adapter.clear()
             setViewPager()
-
-            Log.d("SETTING HIDE NOTIFICATIONS", hideNotifications.toString())
-        }
-    }
-
-    private fun saveDarkMode(mode: Int) {
-        getSharedPreferences(Constants.DARK_MODE_SHARED_PREFERENCES_NAME.VALUE, Context.MODE_PRIVATE).edit {
-            putInt(Constants.DARK_MODE_SHARED_PREFERENCES_KEY.VALUE, mode)
-            commit()
         }
     }
 
@@ -150,5 +131,17 @@ class MainActivity : AppCompatActivity() {
                 super.onPageSelected(position)
             }
         })
+    }
+
+    private fun themeMode(): Int {
+        return darkMode(SettingsService.darkMode())
+    }
+
+    private fun darkMode(value: Boolean): Int {
+        return if (value) {
+            MODE_NIGHT_YES
+        } else {
+            MODE_NIGHT_NO
+        }
     }
 }

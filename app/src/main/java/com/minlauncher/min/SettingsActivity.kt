@@ -5,9 +5,11 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Bundle
+import android.view.View
 import android.view.Window
 import android.view.WindowManager
 import android.widget.Switch
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -82,14 +84,20 @@ class SettingsActivity : AppCompatActivity() {
             SettingsAppListItem(it.id, it.label, it.packageName, applicationIcon)
         }
 
-        val recyclerView = findViewById<RecyclerView>(R.id.hiddenAppsList)
-        recyclerView.layoutManager = LinearLayoutManager(applicationContext)
-        recyclerView.adapter = SettingsAppListAdapter(hiddenApps, object : SettingsAppOnClickListener {
+        val hiddenAppsRecyclerView = findViewById<RecyclerView>(R.id.hiddenAppsList)
+        hiddenAppsRecyclerView.layoutManager = LinearLayoutManager(applicationContext)
+        hiddenAppsRecyclerView.adapter = SettingsAppListAdapter(hiddenApps, object : SettingsAppOnClickListener {
             override fun onClick(id: Int) {
                 val intent = MarkAppAsVisibleIntent.create(baseContext, id)
                 startService(intent)
             }
         })
+
+        val hiddenAppsTextView = findViewById<TextView>(R.id.settingsHiddenAppsTextView)
+        if (hiddenApps.isEmpty()) {
+            hiddenAppsTextView.visibility = View.GONE
+            hiddenAppsRecyclerView.visibility = View.GONE
+        }
 
         val homeApps = AppsService.homeApps().map {
             val applicationIcon = packageManager.getApplicationIcon(it.packageName)
@@ -103,6 +111,12 @@ class SettingsActivity : AppCompatActivity() {
                 startService(intent)
             }
         })
+
+        val homeAppsTextView = findViewById<TextView>(R.id.settingsHomeAppsTextView)
+        if (homeApps.isEmpty()) {
+            homeAppsTextView.visibility = View.GONE
+            homeAppsTextView.visibility = View.GONE
+        }
     }
 
     fun setActivityProperties() {
