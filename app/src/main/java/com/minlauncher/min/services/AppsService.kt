@@ -1,12 +1,9 @@
 package com.minlauncher.min.services
 
 import android.app.Service
-import android.content.Context
 import android.content.Intent
 import android.os.IBinder
 import androidx.room.Room
-import androidx.room.RoomDatabase
-import com.minlauncher.min.Constants
 import com.minlauncher.min.db.AppInfoDatabase
 import com.minlauncher.min.db.AppInfoEntity
 import com.minlauncher.min.db.AppInfoEntityConverter
@@ -14,7 +11,6 @@ import com.minlauncher.min.intents.*
 import com.minlauncher.min.models.AppInfo
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import java.util.*
 
 class AppsService : Service() {
 

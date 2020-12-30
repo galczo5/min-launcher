@@ -6,7 +6,6 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.os.IBinder
 import androidx.core.content.edit
-import com.minlauncher.min.Constants
 import com.minlauncher.min.Settings
 import com.minlauncher.min.intents.*
 
@@ -14,10 +13,13 @@ class SettingsService : Service() {
 
     companion object {
 
+        private const val SHARED_PREFERENCES_SETTINGS = "SHARED_PREFERENCES_SETTINGS"
+        private const val SHARED_PREFERENCES_SETTINGS_KEY_PREFIX = "SHARED_PREFERENCES_SETTINGS_KEY_PREFIX"
+
         private lateinit var sharedPreferences: SharedPreferences
 
         fun getInitValue(getSharedPreferences: (name: String, mode: Int) -> SharedPreferences, key: String): Boolean {
-            val sharedPreferences = getSharedPreferences(Constants.SHARED_PREFERENCES_SETTINGS.VALUE, Context.MODE_PRIVATE)
+            val sharedPreferences = getSharedPreferences(SHARED_PREFERENCES_SETTINGS, Context.MODE_PRIVATE)
             return sharedPreferences.getBoolean(getKey(key), false)
         }
 
@@ -50,14 +52,14 @@ class SettingsService : Service() {
         }
 
         private fun getKey(key: String): String {
-            return Constants.SHARED_PREFERENCES_SETTINGS_KEY_PREFIX.VALUE + "_" + key
+            return SHARED_PREFERENCES_SETTINGS_KEY_PREFIX + "_" + key
         }
 
     }
 
     override fun onCreate() {
         super.onCreate()
-        sharedPreferences = getSharedPreferences(Constants.SHARED_PREFERENCES_SETTINGS.VALUE, Context.MODE_PRIVATE)
+        sharedPreferences = getSharedPreferences(SHARED_PREFERENCES_SETTINGS, Context.MODE_PRIVATE)
     }
 
     override fun onBind(intent: Intent): IBinder? {

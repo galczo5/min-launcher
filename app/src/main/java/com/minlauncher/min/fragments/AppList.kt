@@ -13,12 +13,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.Switch
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.text.isDigitsOnly
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import com.minlauncher.min.Constants
 import com.minlauncher.min.adapters.AppListAdapter
 import com.minlauncher.min.R
 import com.minlauncher.min.SettingsActivity

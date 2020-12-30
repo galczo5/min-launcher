@@ -39,13 +39,8 @@ class NotificationListAdapter(val notifications: List<AppNotificationListItem>, 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val notification = notifications[position]
 
-        notification.title?.also {
-            holder.labelTextView.text = notification.title
-        }
-
-        notification.desc?.also {
-            holder.descriptionTextView.text = notification.desc
-        }
+        setTextView(holder.labelTextView, notification.title)
+        setTextView(holder.descriptionTextView, notification.desc)
 
         holder.iconImageView.setImageDrawable(notification.icon)
         holder.applicationLabelTextView.text = notification.applicationLabel
@@ -59,6 +54,15 @@ class NotificationListAdapter(val notifications: List<AppNotificationListItem>, 
         notification.bitmap?.also {
             holder.notificationImageView.setImageDrawable(BitmapDrawable(notification.bitmap))
             holder.notificationImageView.visibility = View.VISIBLE
+        }
+    }
+
+    private fun setTextView(textView: TextView, value: String) {
+        if (value != "null") {
+            textView.visibility = View.VISIBLE
+            textView.text = value
+        } else {
+            textView.visibility = View.GONE
         }
     }
 }

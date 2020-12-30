@@ -5,8 +5,8 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 
-    <color name="alphabet_text_color">#8800796B</color>
-    <color name="alphabet_text_selected_color">#FF00796B</color>
+    <color name="alphabet_text_color">#FF00796B</color>
+    <color name="alphabet_text_selected_color">#AA00796B</color>
     <color name="alphabet_background_color">#00000000</color>
     <color name="alphabet_background_border_color">#00000000</color>
 
