@@ -10,11 +10,12 @@ import com.minlauncher.min.fragments.NotificationsWrapper
 
 class MainActivityScreensAdapter(val fragmentManager: FragmentManager,
                                  lifecycle: Lifecycle,
-                                 var hideNotifications: Boolean,
-                                 var hideHome: Boolean) : FragmentStateAdapter(fragmentManager, lifecycle) {
+                                 hideNotifications: Boolean,
+                                 hideHome: Boolean) : FragmentStateAdapter(fragmentManager, lifecycle) {
 
     private var size: Int = 0
     private val list = mutableListOf<Fragment>()
+    var currentPage = 1
 
     init {
         size = 5;
@@ -29,6 +30,7 @@ class MainActivityScreensAdapter(val fragmentManager: FragmentManager,
             size -= 1
         } else {
             list.add(Home())
+            currentPage = list.size
         }
 
         list.add(AppList())

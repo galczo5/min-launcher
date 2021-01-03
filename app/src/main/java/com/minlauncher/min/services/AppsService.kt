@@ -73,6 +73,9 @@ class AppsService : Service() {
                         val id = it.getIntExtra(SetLastUseDateIntent.EXTRA, -1)
                         updateLastUse(id)
                     }
+                    InitAppsListIntent.ACTION -> {
+                        reloadCache()
+                    }
                 }
             }
         }

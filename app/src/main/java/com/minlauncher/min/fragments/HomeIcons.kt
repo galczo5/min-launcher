@@ -48,6 +48,9 @@ class HomeIcons : Fragment() {
         activity?.registerReceiver(appsRefreshReceiver, IntentFilter(RefreshAppsListIntent.ACTION))
         recyclerView = view.findViewById(R.id.homeAppGrid)
 
+        homeApps = AppsService.homeApps()
+        setRecyclerView()
+
         return view
     }
 
@@ -64,9 +67,6 @@ class HomeIcons : Fragment() {
     override fun onResume() {
         paused = false
         super.onResume()
-
-        homeApps = AppsService.homeApps()
-        setRecyclerView()
     }
 
     private fun setRecyclerView() {

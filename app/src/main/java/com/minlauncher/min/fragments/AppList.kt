@@ -97,6 +97,7 @@ class AppList : Fragment() {
         setSettingsCog()
         setSwipeRefresh()
         setDarkModeSwitch()
+        initRecyclerView()
 
         return view
     }
@@ -116,7 +117,9 @@ class AppList : Fragment() {
     override fun onResume() {
         paused = false
         super.onResume()
+    }
 
+    private fun initRecyclerView() {
         apps = AppsService.allApps()
         lastUsedApps = AppsService.lastUsed()
 
@@ -187,6 +190,8 @@ class AppList : Fragment() {
                 }
             }
         }
+
+        recyclerView.setHasFixedSize(true)
 
         recyclerView.layoutManager = LinearLayoutManager(context)
         recyclerView.adapter = AppListAdapter(items, clickListener, menuClickListener)

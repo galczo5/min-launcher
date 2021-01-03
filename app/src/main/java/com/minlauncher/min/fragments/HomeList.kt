@@ -43,6 +43,9 @@ class HomeList : Fragment() {
         recyclerView = view.findViewById(R.id.homeAppList)
         activity?.registerReceiver(appsRefreshReceiver, IntentFilter(RefreshAppsListIntent.ACTION))
 
+        homeApps = AppsService.homeApps()
+        setRecyclerView()
+
         return view
     }
 
@@ -59,9 +62,6 @@ class HomeList : Fragment() {
     override fun onResume() {
         paused = false
         super.onResume()
-
-        homeApps = AppsService.homeApps()
-        setRecyclerView()
     }
 
     private fun setRecyclerView() {
@@ -74,6 +74,7 @@ class HomeList : Fragment() {
             }
         }
 
+        recyclerView.setHasFixedSize(true)
         recyclerView.layoutManager = LinearLayoutManager(context)
         recyclerView.adapter = HomeAppListAdapter(homeApps, contextMenuClickListener)
     }

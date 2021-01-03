@@ -14,4 +14,9 @@
     <string name="hiddenAppsHeaderText">Hidden apps</string>
     <string name="launcherSettingsHeaderText">Launcher settings</string>
     <string name="settingsHomeAppsHeaderText">Home apps</string>
+    <string name="settingsScreenIconsLabel">Home screen icons</string>
+    <string name="settingsHideIconsLabel">Hide icons</string>
+    <string name="settingsNotificationsDisableLabel">Disable notifications screen</string>
+    <string name="settingsHomeDisableLabel">Disable home screen</string>
+    <string name="settingsLastUsedAppsHideLabel">Show last used apps</string>
 </resources>

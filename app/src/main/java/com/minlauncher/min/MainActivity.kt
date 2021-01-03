@@ -15,10 +15,7 @@ import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES
 import androidx.core.content.edit
 import androidx.viewpager2.widget.ViewPager2
 import com.minlauncher.min.adapters.MainActivityScreensAdapter
-import com.minlauncher.min.intents.DarkModeSettingChangedIntent
-import com.minlauncher.min.intents.HomeHideSettingChangedIntent
-import com.minlauncher.min.intents.NotificationsHideChangedIntent
-import com.minlauncher.min.intents.ReloadAppsListIntent
+import com.minlauncher.min.intents.*
 import com.minlauncher.min.services.AppsService
 import com.minlauncher.min.services.SettingsService
 
@@ -81,6 +78,7 @@ class MainActivity : AppCompatActivity() {
         setViewPager()
 
         startService(Intent(baseContext, AppsService::class.java))
+        startService(InitAppsListIntent.create(baseContext))
         startService(Intent(baseContext, SettingsService::class.java))
     }
 
@@ -119,7 +117,8 @@ class MainActivity : AppCompatActivity() {
     private fun setViewPager() {
         adapter = MainActivityScreensAdapter(supportFragmentManager, lifecycle, hideNotifications, hideHome)
         viewPager.adapter = adapter
-        viewPager.currentItem = 1
+        viewPager.currentItem = adapter.currentPage
+        viewPager.offscreenPageLimit = 100
         viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 val adapterSize = adapter.itemCount

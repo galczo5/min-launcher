@@ -30,7 +30,7 @@ class Home : Fragment() {
     private val batteryStatusReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             intent?.also {
-                val scale = it.getIntExtra(BatteryManager.EXTRA_SCALE, -1)
+                val scale = it.getIntExtra(BatteryManager.EXTRA_LEVEL, -1)
                 batteryStatusText = "$scale% battery"
 
                 if (!paused) {
@@ -74,6 +74,12 @@ class Home : Fragment() {
         activity?.registerReceiver(notificationsBroadcastReceiver, IntentFilter(RefreshNotificationListIntent.ACTION))
         activity?.registerReceiver(setHomeIconsBroadcastReceiver, IntentFilter(IconsOnHomeSettingChangedIntent.ACTION))
 
+        showOnlyIcons = SettingsService.homeIcons()
+
+        setAppsFragment()
+        setBatteryStatusTextView()
+        setNotificationsCounterTextView()
+
         return view
     }
 
@@ -85,12 +91,6 @@ class Home : Fragment() {
     override fun onResume() {
         paused = false
         super.onResume()
-
-        showOnlyIcons = SettingsService.homeIcons()
-
-        setAppsFragment()
-        setBatteryStatusTextView()
-        setNotificationsCounterTextView()
     }
 
     override fun onDestroyView() {

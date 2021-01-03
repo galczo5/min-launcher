@@ -1,5 +1,6 @@
 package com.minlauncher.min.adapters
 
+import android.util.TimingLogger
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
