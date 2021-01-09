@@ -80,6 +80,8 @@ class MainActivity : AppCompatActivity() {
         startService(Intent(baseContext, AppsService::class.java))
         startService(InitAppsListIntent.create(baseContext))
         startService(Intent(baseContext, SettingsService::class.java))
+
+        SettingsService.init(getSharedPreferences(SettingsService.SHARED_PREFERENCES_SETTINGS, Context.MODE_PRIVATE))
     }
 
     override fun onDestroy() {

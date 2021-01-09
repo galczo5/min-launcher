@@ -13,10 +13,14 @@ class SettingsService : Service() {
 
     companion object {
 
-        private const val SHARED_PREFERENCES_SETTINGS = "SHARED_PREFERENCES_SETTINGS"
-        private const val SHARED_PREFERENCES_SETTINGS_KEY_PREFIX = "SHARED_PREFERENCES_SETTINGS_KEY_PREFIX"
+        const val SHARED_PREFERENCES_SETTINGS = "SHARED_PREFERENCES_SETTINGS"
+        const val SHARED_PREFERENCES_SETTINGS_KEY_PREFIX = "SHARED_PREFERENCES_SETTINGS_KEY_PREFIX"
 
         private lateinit var sharedPreferences: SharedPreferences
+
+        fun init(sp: SharedPreferences) {
+            sharedPreferences = sp;
+        }
 
         fun getInitValue(getSharedPreferences: (name: String, mode: Int) -> SharedPreferences, key: String): Boolean {
             val sharedPreferences = getSharedPreferences(SHARED_PREFERENCES_SETTINGS, Context.MODE_PRIVATE)
@@ -59,7 +63,6 @@ class SettingsService : Service() {
 
     override fun onCreate() {
         super.onCreate()
-        sharedPreferences = getSharedPreferences(SHARED_PREFERENCES_SETTINGS, Context.MODE_PRIVATE)
     }
 
     override fun onBind(intent: Intent): IBinder? {

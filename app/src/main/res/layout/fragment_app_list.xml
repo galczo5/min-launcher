@@ -19,39 +19,18 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
-        android:id="@+id/imageView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:scaleX="0.5"
-        android:scaleY="0.5"
-        android:src="@drawable/ic_baseline_wb_sunny_24"
-        app:layout_constraintBottom_toBottomOf="@+id/textView"
-        app:layout_constraintEnd_toStartOf="@+id/darkModeSwitch"
-        app:layout_constraintTop_toTopOf="@+id/textView" />
-
-    <Switch
-        android:id="@+id/darkModeSwitch"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginRight="@dimen/margin_right"
-        app:layout_constraintBottom_toBottomOf="@+id/imageView"
-        app:layout_constraintEnd_toStartOf="@+id/settingsCog"
-        app:layout_constraintTop_toTopOf="@+id/imageView" />
-
-    <ImageView
         android:id="@+id/settingsCog"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:src="@drawable/ic_baseline_settings_24"
-        android:foreground="?android:selectableItemBackground"
         android:layout_marginRight="10dp"
+        android:foreground="?android:selectableItemBackground"
         android:paddingHorizontal="5dp"
         android:paddingVertical="5dp"
-        app:layout_constraintBottom_toBottomOf="@+id/darkModeSwitch"
+        android:src="@drawable/ic_baseline_settings_24"
+        app:layout_constraintBottom_toBottomOf="@+id/textView"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/darkModeSwitch" />
+        app:layout_constraintTop_toTopOf="@+id/textView" />
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/appListSwipeRefresh"

@@ -38,7 +38,6 @@ class AppList : Fragment() {
 
     lateinit var settingsCog: ImageView
     lateinit var swipeRefreshLayout: SwipeRefreshLayout
-    lateinit var switch: Switch
     lateinit var recyclerView: RecyclerView
     lateinit var fastScroller: RecyclerViewFastScroller
     lateinit var packageManager: PackageManager
@@ -82,7 +81,6 @@ class AppList : Fragment() {
 
         settingsCog = view.findViewById(R.id.settingsCog)
         swipeRefreshLayout = view.findViewById(R.id.appListSwipeRefresh)
-        switch = view.findViewById(R.id.darkModeSwitch)
         recyclerView = view.findViewById(R.id.appList)
         fastScroller = view.findViewById(R.id.fastScroller)
 
@@ -96,7 +94,6 @@ class AppList : Fragment() {
 
         setSettingsCog()
         setSwipeRefresh()
-        setDarkModeSwitch()
         initRecyclerView()
 
         return view
@@ -150,15 +147,6 @@ class AppList : Fragment() {
     private fun reloadList() {
         val intent = activity?.baseContext?.let { ReloadAppsListIntent.create(it) }
         activity?.startService(intent)
-    }
-
-    private fun setDarkModeSwitch() {
-        switch.isChecked = SettingsService.darkMode()
-        switch.setOnCheckedChangeListener { _, isChecked ->
-            activity?.baseContext?.also {
-                activity?.startService(ChangeDarkModeSettingIntent.create(it, isChecked))
-            }
-        }
     }
 
     private fun setRecyclerView() {
