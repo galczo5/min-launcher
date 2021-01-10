@@ -14,12 +14,14 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.Switch
 import androidx.core.text.isDigitsOnly
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.minlauncher.min.adapters.AppListAdapter
 import com.minlauncher.min.R
 import com.minlauncher.min.SettingsActivity
+import com.minlauncher.min.adapters.AppGridAdapter
 import com.minlauncher.min.adapters.AppListContextMenuClickListener
 import com.minlauncher.min.adapters.AppListOnClickListener
 import com.minlauncher.min.intents.*
@@ -184,7 +186,9 @@ class AppList : Fragment() {
 
         recyclerView.layoutManager = LinearLayoutManager(context)
         recyclerView.adapter = AppListAdapter(items, clickListener, menuClickListener)
-
+//        recyclerView.layoutManager = GridLayoutManager(context, 4)
+//        recyclerView.adapter = AppGridAdapter(items, clickListener, menuClickListener)
+//
         val alphabet = getAlphabet(items)
         fastScroller.setUpAlphabet(alphabet)
         fastScroller.setRecyclerView(recyclerView)

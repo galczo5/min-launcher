@@ -57,6 +57,8 @@ class Home : Fragment() {
         val view = inflater.inflate(R.layout.fragment_home, container, false)
 
         batteryStatusTextView = view.findViewById(R.id.batteryStatus)
+        batteryStatusTextView.visibility = View.GONE
+
         notificationsCounterView = view.findViewById(R.id.homeNotificationsCounter)
 
         activity?.registerReceiver(batteryStatusReceiver, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
@@ -116,5 +118,8 @@ class Home : Fragment() {
 
     private fun setBatteryStatusTextView() {
         batteryStatusTextView.text = batteryStatusText
+        if (batteryStatusText.any()) {
+            batteryStatusTextView.visibility = View.VISIBLE
+        }
     }
 }

@@ -11,10 +11,10 @@ import com.minlauncher.min.models.AppListItem
 import com.minlauncher.min.models.ContextMenuGroup
 import com.viethoa.RecyclerViewFastScroller
 
-class AppListAdapter(val apps: List<AppListItem>,
+class AppGridAdapter(val apps: List<AppListItem>,
                      val onClickListener: AppListOnClickListener,
                      val onContextMenuClickListener: AppListContextMenuClickListener)
-    : RecyclerViewFastScroller.BubbleTextGetter, RecyclerView.Adapter<AppListAdapter.ViewHolder>() {
+    : RecyclerViewFastScroller.BubbleTextGetter, RecyclerView.Adapter<AppGridAdapter.ViewHolder>() {
 
     inner class ViewHolder(val view: View, val viewType: Int) : RecyclerView.ViewHolder(view) {
         lateinit var textView: TextView
@@ -38,7 +38,7 @@ class AppListAdapter(val apps: List<AppListItem>,
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val resource = if (viewType == 0) {
-            R.layout.app_list_item
+            R.layout.app_grid_item
         } else {
             R.layout.app_list_separator
         }
