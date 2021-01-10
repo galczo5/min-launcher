@@ -4,7 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="@dimen/row_height"
     android:paddingLeft="@dimen/margin_left"
-    android:paddingRight="@dimen/margin_right">
+    android:paddingRight="@dimen/margin_right"
+    android:foreground="?android:selectableItemBackground">
 
     <ImageView
         android:id="@+id/settingsItemAppIcon"
@@ -15,7 +16,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-
     <TextView
         android:id="@+id/hiddenAppLabel"
         android:layout_width="0dp"
@@ -25,18 +25,8 @@
         android:layout_weight="1"
         android:textAppearance="@style/TextAppearance.AppCompat.Medium"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/hiddenAppShow"
-        app:layout_constraintStart_toEndOf="@+id/settingsItemAppIcon"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <ImageView
-        android:id="@+id/hiddenAppShow"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_gravity="center"
-        android:src="@drawable/ic_baseline_backspace_16"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/settingsItemAppIcon"
         app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

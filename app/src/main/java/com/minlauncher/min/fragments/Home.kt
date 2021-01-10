@@ -49,17 +49,6 @@ class Home : Fragment() {
         }
     }
 
-    private val setHomeIconsBroadcastReceiver: BroadcastReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
-            intent?.also {
-                showOnlyIcons = SettingsService.homeIcons()
-                if (!paused) {
-                    setAppsFragment()
-                }
-            }
-        }
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -72,7 +61,6 @@ class Home : Fragment() {
 
         activity?.registerReceiver(batteryStatusReceiver, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
         activity?.registerReceiver(notificationsBroadcastReceiver, IntentFilter(RefreshNotificationListIntent.ACTION))
-        activity?.registerReceiver(setHomeIconsBroadcastReceiver, IntentFilter(IconsOnHomeSettingChangedIntent.ACTION))
 
         showOnlyIcons = SettingsService.homeIcons()
 
@@ -91,13 +79,17 @@ class Home : Fragment() {
     override fun onResume() {
         paused = false
         super.onResume()
+
+        if (showOnlyIcons != SettingsService.homeIcons()) {
+            showOnlyIcons = SettingsService.homeIcons()
+            setAppsFragment()
+        }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         activity?.unregisterReceiver(batteryStatusReceiver)
         activity?.unregisterReceiver(notificationsBroadcastReceiver)
-        activity?.unregisterReceiver(setHomeIconsBroadcastReceiver)
     }
 
     private fun setAppsFragment() {

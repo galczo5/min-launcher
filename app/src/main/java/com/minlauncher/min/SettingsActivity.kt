@@ -104,15 +104,22 @@ class SettingsActivity : AppCompatActivity() {
         }
 
         val hideLastUsedAppsSwitch = findViewById<Switch>(R.id.settingsHideLastUsedApps)
-        hideLastUsedAppsSwitch.isChecked = SettingsService.lastUsedAppsHidden()
+        hideLastUsedAppsSwitch.isChecked = !SettingsService.lastUsedAppsHidden()
         hideLastUsedAppsSwitch.setOnCheckedChangeListener { _, isChecked ->
-            startService(ChangeHideLastUsedAppsSettingIntent.create(baseContext, isChecked))
+            startService(ChangeHideLastUsedAppsSettingIntent.create(baseContext, !isChecked))
         }
     }
 
     override fun onDestroy() {
         super.onDestroy()
         unregisterReceiver(refreshAppsReceiver)
+    }
+
+    override fun onBackPressed() {
+        Intent(this, MainActivity::class.java).also {
+            startActivity(it)
+            finish()
+        }
     }
 
     private fun setAdapter() {

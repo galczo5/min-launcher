@@ -133,6 +133,7 @@ class AppList : Fragment() {
         settingsCog.setOnClickListener {
             Intent(activity, SettingsActivity::class.java).also {
                 startActivity(it)
+                activity?.finish()
             }
         }
     }
@@ -227,7 +228,7 @@ class AppList : Fragment() {
 
     private fun getAlphabet(items: List<AppListItem>): List<AlphabetItem> {
         return items.mapIndexed { index, item ->
-            if (item.separator && item.label != "0-9") {
+            if (item.separator && item.label.length == 1) {
                 val firstLetter = item.label[0].toUpperCase().toString()
                 AlphabetItem(index, firstLetter, false)
             } else {

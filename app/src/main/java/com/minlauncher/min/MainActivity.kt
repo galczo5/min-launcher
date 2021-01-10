@@ -35,24 +35,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private val hideNotificationsBroadcastReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
-            hideNotifications = SettingsService.notificationsHidden()
-            if (!paused) {
-                setViewPager()
-            }
-        }
-    }
-
-    private val hideHomeBroadcastReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) {
-            hideHome = SettingsService.homeHidden()
-            if (!paused) {
-                setViewPager()
-            }
-        }
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -63,10 +45,6 @@ class MainActivity : AppCompatActivity() {
             startService(it)
         }
 
-        registerReceiver(darkModeChangedBroadcastReceiver, IntentFilter(DarkModeSettingChangedIntent.ACTION))
-        registerReceiver(hideNotificationsBroadcastReceiver, IntentFilter(NotificationsHideChangedIntent.ACTION))
-        registerReceiver(hideHomeBroadcastReceiver, IntentFilter(HomeHideSettingChangedIntent.ACTION))
-
         val darkModeValue = SettingsService.getInitValue(
             { name, mode -> getSharedPreferences(name, mode) },
             Settings.DARK_MODE.NAME
@@ -74,21 +52,23 @@ class MainActivity : AppCompatActivity() {
 
         AppCompatDelegate.setDefaultNightMode(darkMode(darkModeValue))
 
-        viewPager = findViewById(R.id.viewPager)
-        setViewPager()
+        registerReceiver(darkModeChangedBroadcastReceiver, IntentFilter(DarkModeSettingChangedIntent.ACTION))
 
         startService(Intent(baseContext, AppsService::class.java))
         startService(InitAppsListIntent.create(baseContext))
         startService(Intent(baseContext, SettingsService::class.java))
 
         SettingsService.init(getSharedPreferences(SettingsService.SHARED_PREFERENCES_SETTINGS, Context.MODE_PRIVATE))
+
+        hideHome = SettingsService.homeHidden()
+        hideNotifications = SettingsService.notificationsHidden()
+        viewPager = findViewById(R.id.viewPager)
+        setViewPager()
     }
 
     override fun onDestroy() {
         super.onDestroy()
         unregisterReceiver(darkModeChangedBroadcastReceiver)
-        unregisterReceiver(hideNotificationsBroadcastReceiver)
-        unregisterReceiver(hideHomeBroadcastReceiver)
     }
 
     override fun onPause() {
@@ -99,15 +79,6 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         paused = false
         super.onResume()
-
-        if (SettingsService.ready()) {
-            hideNotifications = SettingsService.notificationsHidden()
-            hideHome = SettingsService.homeHidden()
-
-            viewPager.adapter = null
-            adapter.clear()
-            setViewPager()
-        }
     }
 
     private fun setActivityProperties() {
@@ -120,7 +91,6 @@ class MainActivity : AppCompatActivity() {
         adapter = MainActivityScreensAdapter(supportFragmentManager, lifecycle, hideNotifications, hideHome)
         viewPager.adapter = adapter
         viewPager.currentItem = adapter.currentPage
-        viewPager.offscreenPageLimit = 100
         viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 val adapterSize = adapter.itemCount

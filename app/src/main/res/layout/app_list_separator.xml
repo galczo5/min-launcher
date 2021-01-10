@@ -8,7 +8,9 @@
 
     <TextView
         android:id="@+id/appSeparatorLabel"
-        android:layout_width="30dp"
+        android:layout_width="wrap_content"
+        android:minWidth="20dp"
+        android:paddingRight="10dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:textColor="@color/primary"

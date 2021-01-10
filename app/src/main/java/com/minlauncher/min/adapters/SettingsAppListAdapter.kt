@@ -13,7 +13,6 @@ class SettingsAppListAdapter(val apps: List<SettingsAppListItem>, val onClickLis
 
     inner class ViewHolder(val view: View) : RecyclerView.ViewHolder(view) {
         val textView = view.findViewById<TextView>(R.id.hiddenAppLabel)
-        val showImageView = view.findViewById<ImageView>(R.id.hiddenAppShow)
         val imageView = view.findViewById<ImageView>(R.id.settingsItemAppIcon)
     }
 
@@ -32,10 +31,9 @@ class SettingsAppListAdapter(val apps: List<SettingsAppListItem>, val onClickLis
         val item = apps[position]
         holder.textView.text = item.label
         holder.imageView.setImageDrawable(item.icon)
-        holder.showImageView.setOnClickListener {
-            item.packageName?.let { packageName ->
-                onClickListener.onClick(item.id)
-            }
+        holder.view.setOnLongClickListener {
+            onClickListener.onClick(item.id)
+            true
         }
     }
 }
